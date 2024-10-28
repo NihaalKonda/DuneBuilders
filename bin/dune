@@ -1,0 +1,4 @@
+(executable
+ (public_name dunebuilders)
+ (name main)
+ (libraries dunebuilders))

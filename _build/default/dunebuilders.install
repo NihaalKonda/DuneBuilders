@@ -1,0 +1,11 @@
+lib: [
+  "_build/install/default/lib/dunebuilders/META"
+  "_build/install/default/lib/dunebuilders/dune-package"
+  "_build/install/default/lib/dunebuilders/opam"
+]
+bin: [
+  "_build/install/default/bin/dunebuilders"
+]
+doc: [
+  "_build/install/default/doc/dunebuilders/README.md"
+]
