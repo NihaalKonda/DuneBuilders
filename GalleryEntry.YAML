@@ -1,0 +1,33 @@
+---
+# Members of your group.
+group:
+  - name: Aly Nathoo
+    netid: an546
+  - name: Nihaal Konda
+    netid: nak79
+  - name: Tanvi Mavani
+    netid: tm669
+  - name: Sanya Mahajan
+    netid: sm2588
+# Your PM.
+pm:
+  name: Alexander He
+  netid: adh236@cornell.edu
+# Set to false if you don't want your gallery entry to be public.
+publish: true
+# Pithy title
+title: "Ocaml Law Enforcement Training Tool (Ocaml LETT)"
+# OK if this is a Cornell Github link, but public gallery viewers won't be able to see it.
+git-repo: "https://github.com/NihaalKonda/DuneBuilders"
+# Replace the URL with your own demo video. UPDATE AFTER FIRST VIDEO COMPLETION
+demo-video-url: ""
+# Write a short, attention-grabbing description of your project.
+desc: >
+  Our project is a law enforcement training tool. It will allow users to select different types of 
+  police officers such as traffic police, campus police, and criminal investigator. Each selected officer
+  type will have their own unique set of training puzzles and games that will continue to be developed. 
+  One example of a training puzzle could be a hypothetical situation where the user will be prompted with
+  choices in response to a specific problem where their choices impact the outcome of the situation and 
+  generate a score. The goal of the tool is to provide an educational platform where users can develop 
+  decision-making and critical thinking skills tailored to the unique challenges faced by different types 
+  of law enforcement officers
