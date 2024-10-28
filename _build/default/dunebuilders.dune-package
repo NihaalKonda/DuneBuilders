@@ -1,4 +1,0 @@
-(lang dune 3.16)
-(name dunebuilders)
-(sections (lib .) (bin ../../bin) (doc ../../doc/dunebuilders))
-(files (lib (META dune-package opam)) (bin (dunebuilders)) (doc (README.md)))
