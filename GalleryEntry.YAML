@@ -20,7 +20,7 @@ title: "Ocaml Law Enforcement Training Tool (Ocaml LETT)"
 # OK if this is a Cornell Github link, but public gallery viewers won't be able to see it.
 git-repo: "https://github.com/NihaalKonda/DuneBuilders"
 # Replace the URL with your own demo video. UPDATE AFTER FIRST VIDEO COMPLETION
-demo-video-url: ""
+demo-video-url: "https://youtu.be/CwBMEsimpkU"
 # Write a short, attention-grabbing description of your project.
 desc: >
   Our project is a law enforcement training tool. It will allow users to select different types of 
