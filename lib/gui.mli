@@ -1,5 +1,8 @@
-(* Initialize the GUI window and display the welcome screen *)
+(* Type representing the game states *)
+type game_state = Welcome | RoleSelection | Scenario of Role.scenario
+
+(* Initialize the GUI window *)
 val initialize_gui : unit -> unit
 
-(* Run the main game loop *)
-val game_loop : unit -> unit
+(* Main game loop to manage transitions between states *)
+val game_loop : game_state -> unit

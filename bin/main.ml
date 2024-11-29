@@ -3,4 +3,4 @@ open Dunebuilders.Gui
 
 let () =
   initialize_gui ();
-  game_loop ()
+  game_loop Dunebuilders.Gui.Welcome  

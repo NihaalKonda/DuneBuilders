@@ -1,7 +1,41 @@
-open Graphics
-
-(* Type to represent roles *)
 type role = CampusPolice | CriminalInvestigator | TrafficCop
+
+type scenario = {
+  title : string;
+  description : string;
+  options : string list;
+}
+
+(* Define scenarios for each role *)
+let get_scenario role =
+  match role with
+  | CampusPolice -> {
+      title = "Campus Police Scenario";
+      description = "It's late at night, and you receive a noise complaint near campus.\nYou see students partying and drinking.";
+      options = [
+        "Knock on the door and request to speak with the residents";
+        "Call for backup before approaching";
+        "Issue noise violation citations immediately";
+      ]
+    }
+  | CriminalInvestigator -> {
+      title = "Criminal Investigator Scenario";
+      description = "A jewelry store has been robbed. The front door is damaged,\nand display cases are shattered.";
+      options = [
+        "Interview the store owner";
+        "Secure the crime scene and call for forensics";
+        "Check nearby security footage";
+      ]
+    }
+  | TrafficCop -> {
+      title = "Traffic Cop Scenario";
+      description = "You pull over a car for running a red light.\nThe driver seems nervous and is fidgeting.";
+      options = [
+        "Request license and registration calmly";
+        "Call for backup immediately";
+        "Order the driver to exit the vehicle";
+      ]
+    }
 
 (* Handle role selection based on mouse coordinates *)
 let handle_role_selection x y =
@@ -12,47 +46,3 @@ let handle_role_selection x y =
     else None
   else
     None
-
-(* Display the message for a selected role *)
-let display_role_message role =
-  clear_graph ();
-  let message = match role with
-    | CampusPolice -> 
-        "Campus Police Scenario:\n
-        It's 11:45 p.m. on a Friday night. Noise complaint near North Campus..."
-    | CriminalInvestigator -> 
-        "Criminal Investigator Scenario:\n
-        A burglary has been reported. Front door forced open..."
-    | TrafficCop -> 
-        "Traffic Cop Scenario:\n
-        A vehicle ran a red light. The driver appears anxious..."
-  in
-
-  (* Function to split text into lines *)
-  let format_text text max_pixel_width =
-    let words = String.split_on_char ' ' text in
-    let rec aux current_line current_width lines = function
-      | [] -> List.rev (String.concat " " (List.rev current_line) :: lines)
-      | word :: rest ->
-        let word_width = (String.length word + 1) * 6 in
-        if current_width + word_width > max_pixel_width then
-          aux [word] word_width (String.concat " " (List.rev current_line) :: lines) rest
-        else
-          aux (word :: current_line) (current_width + word_width) lines rest
-    in
-    aux [] 0 [] words
-  in
-
-  (* Format and display the message *)
-  let max_text_width = 600 - 80 in
-  let lines = format_text message max_text_width in
-  let line_height = 20 in
-  let total_text_height = List.length lines * line_height in
-  let y_start = (400 / 2) + (total_text_height / 2) in
-  set_color black;
-  List.iteri (fun i line ->
-    let line_width = String.length line * 6 in
-    let x_start = (600 - line_width) / 2 in
-    moveto x_start (y_start - i * line_height);
-    draw_string line
-  ) lines
