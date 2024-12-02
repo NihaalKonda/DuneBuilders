@@ -10,7 +10,6 @@ let window_height = 400
 let button_width = 200
 let button_height = 50
 
-(* Helper: Draw a button at specified coordinates *)
 let draw_button x y width height text =
   set_color blue;
   fill_rect x y width height;
@@ -22,6 +21,7 @@ let draw_button x y width height text =
 
 (* Display the welcome screen *)
 let display_welcome_message () =
+  current_page := "welcome";
   clear_graph ();
   moveto (window_width / 2 - 100) (window_height / 2 + 100);
   set_color black;
@@ -32,6 +32,7 @@ let display_welcome_message () =
 
 (* Display the role selection screen *)
 let display_role_selection () =
+  current_page := "role_selection";
   clear_graph ();
   moveto (window_width / 2 - 70) (window_height - 100);
   set_color black;
