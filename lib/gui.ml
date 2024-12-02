@@ -9,6 +9,8 @@ let window_width = 600
 let window_height = 400
 let button_width = 200
 let button_height = 50
+let current_page = ref ""
+
 
 let draw_button x y width height text =
   set_color blue;
