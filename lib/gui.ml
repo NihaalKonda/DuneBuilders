@@ -84,18 +84,20 @@ let rec game_loop state =
       else
         game_loop Welcome
 
-  | RoleSelection ->
-      display_role_selection ();
-      let event = wait_next_event [Button_down] in
-      if event.button then
-        let role = Role.handle_role_selection event.mouse_x event.mouse_y in
-        match role with
-        | Some selected_role ->
-            let scenario = Role.get_scenario selected_role in
-            game_loop (Scenario scenario)
-        | None -> game_loop RoleSelection
-      else
-        game_loop RoleSelection
+        | RoleSelection ->
+          display_role_selection ();
+          let event = wait_next_event [Button_down] in
+          if event.button then
+            let chosen_role = Role.handle_role_selection event.mouse_x event.mouse_y in
+            match chosen_role with
+            | Some selected_role ->
+                close_graph (); (* Exit GUI mode *)
+                (* Now switch to terminal mode *)
+                handle_scenarios_terminal selected_role
+            | None -> game_loop RoleSelection
+          else
+            game_loop RoleSelection
+      
 
   | Scenario scenario ->
       display_scenario scenario;
