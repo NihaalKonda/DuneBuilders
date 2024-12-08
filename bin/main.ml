@@ -1,9 +1,9 @@
 open Graphics
 open Dunebuilders
 open Sequence
+open Campuspolice
 
 let () =
-  Random.self_init ();
-  print_endline "Starting the Sequence Terminal Game...";
-  (* Call the full game logic from sequence.ml *)
-  Sequence.play_sequence_game ();
+  (* Start the test for Campus Police game *)
+  print_endline "Testing Campus Police...";
+  play_campus_police ()
