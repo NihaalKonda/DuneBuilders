@@ -1,6 +1,9 @@
 open Graphics
-open Dunebuilders.Gui
+open Dunebuilders
+open Sequence
+open Campuspolice
 
 let () =
-  initialize_gui ();
-  game_loop Dunebuilders.Gui.Welcome  
+  (* Start the test for Campus Police game *)
+  print_endline "Testing Campus Police...";
+  play_campus_police ()

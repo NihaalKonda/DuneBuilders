@@ -11,7 +11,6 @@ let button_width = 200
 let button_height = 50
 let current_page = ref ""
 
-
 let draw_button x y width height text =
   set_color blue;
   fill_rect x y width height;
@@ -109,4 +108,3 @@ let rec game_loop state =
 let initialize_gui () =
   open_graph (Printf.sprintf " %dx%d" window_width window_height);
   set_window_title "Police Training Game";
-  display_welcome_message ()
