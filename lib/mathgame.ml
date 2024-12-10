@@ -43,10 +43,3 @@ let run_quiz () =
     end
   in
   play 0
-
-(* Main function *)
-let () =
-  Printf.printf "Welcome to the Math Quiz!\n";
-  Printf.printf
-    "Answer 5 math questions correctly in a row to win. Good luck!\n\n";
-  run_quiz ()

@@ -90,8 +90,3 @@ let play_criminal_investigator () =
   in
   let total_points = calculate_points scenarios 0 in
   Printf.printf "Game over! Your total score is: %d\n" total_points
-
-(* Entry point *)
-let () =
-  print_endline "Welcome to Criminal Investigator!";
-  play_criminal_investigator ()

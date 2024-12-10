@@ -1,4 +1,4 @@
-type role = CampusPolice | CriminalInvestigator | TrafficCop
+type role = CampusPolice | CriminalInvestigator | TrafficCop | BorderPatrol
 
 type scenario = {
   title : string;

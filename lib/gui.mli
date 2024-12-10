@@ -1,5 +1,7 @@
 (* Type representing the game states *)
-type game_state = Welcome | RoleSelection | Scenario of Role.scenario
+type game_state =
+  | Welcome
+  | RoleSelection
 
 (* Initialize the GUI window *)
 val initialize_gui : unit -> unit
