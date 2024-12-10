@@ -2,8 +2,8 @@ open Graphics
 open Dunebuilders
 open Sequence
 open Campuspolice
+open Trafficcop
 
 let () =
-  (* Start the test for Campus Police game *)
-  print_endline "Testing Campus Police...";
-  play_campus_police ()
+  print_endline "Testing Traffic Cop...";
+  play_traffic_cop ()
