@@ -183,66 +183,59 @@ let rec handle_scenario scenario points =
   match read_line () with
   | exception End_of_file ->
       printf "No input received. Exiting game.\n";
-      points (* Return current points *)
+      points
   | input -> (
       try
         let choice = int_of_string input in
         if choice < 1 || choice > List.length scenario.options then (
           printf "Choice out of range. No points awarded.\n";
-          handle_scenario scenario points (* Retry current scenario *))
+          handle_scenario scenario points)
         else
           let _, points_for_choice, explanation =
             List.nth scenario.options (choice - 1)
           in
           printf "\n%s\n" explanation;
+
+          (* Handle additional games based on scenario requirements *)
           let updated_points = points + points_for_choice in
-
-          (* Handle the sequence game, if required *)
-          if scenario.requires_sequence_game then (
-            printf
-              "\n\
-               Time to test your problem-solving skills with the sequence game!\n";
-            Sequence.play_sequence_game ());
-
-          (* Handle the reaction time game, if required *)
-          if scenario.requires_reaction_game then (
-            printf "\nYou need quick reflexes! Let's test your reaction time.\n";
-            Reactiontime.play_reaction_game ());
-
-          (* Handle the scramble game, if required *)
           if scenario.requires_scramble_game then (
             printf "\nSolve a scrambled puzzle to proceed:\n";
-            Scramble.play_game () (* Play scramble game with 3 rounds *));
-
-          (* Handle the math game, if required *)
-          if scenario.requires_math_game then (
-            printf "\nYou must solve a series of math problems to proceed:\n";
-            Mathgame.run_quiz ()
-            (* Solve 5 math questions in a row as per mathgame.ml *));
-
-          updated_points
+            Scramble.play_game ();
+            updated_points)
+          else if scenario.requires_sequence_game then (
+            printf "\nSolve a sequence puzzle to proceed:\n";
+            Sequence.play_sequence_game ();
+            updated_points)
+          else if scenario.requires_reaction_game then (
+            printf "\nTest your reflexes to proceed:\n";
+            Reactiontime.play_reaction_game ();
+            updated_points)
+          else if scenario.requires_math_game then (
+            printf "\nSolve a math quiz to proceed:\n";
+            Mathgame.run_quiz ();
+            updated_points)
+          else updated_points
       with
       | Failure _ ->
           printf "Invalid input. Please enter a valid number.\n";
-          handle_scenario scenario points (* Retry current scenario *)
+          handle_scenario scenario points
       | Invalid_argument _ ->
           printf "An error occurred. Please try again.\n";
-          handle_scenario scenario points (* Retry current scenario *))
+          handle_scenario scenario points)
 
-(* Play the Border Patrol Agent game *)
 let play_border_patrol () =
   let rec play_scenarios scenarios points =
     match scenarios with
     | [] ->
         printf "\nGame over. Your final score is: %d\n" points;
-        points (* Return the final score *)
+        points
     | scenario :: remaining_scenarios ->
         let updated_points = handle_scenario scenario points in
         if updated_points <= 0 then (
           printf "\nGame over. You lost all your points. Final score: %d\n"
             updated_points;
-          updated_points (* Return the final score when points drop to 0 *))
+          updated_points)
         else play_scenarios remaining_scenarios updated_points
   in
   printf "Welcome to the Border Patrol Training Simulation!\n";
-  play_scenarios scenarios 5 (* Start with 5 points *)
+  play_scenarios scenarios 5
