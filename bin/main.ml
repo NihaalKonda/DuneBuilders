@@ -4,4 +4,4 @@ open Gui
 
 let () =
   initialize_gui ();
-  game_loop Welcome
+  game_loop Welcome []

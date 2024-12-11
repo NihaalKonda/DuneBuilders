@@ -233,12 +233,15 @@ let rec handle_scenario scenario points =
 let play_border_patrol () =
   let rec play_scenarios scenarios points =
     match scenarios with
-    | [] -> printf "\nGame over. Your final score is: %d\n" points
+    | [] ->
+        printf "\nGame over. Your final score is: %d\n" points;
+        points (* Return the final score *)
     | scenario :: remaining_scenarios ->
         let updated_points = handle_scenario scenario points in
-        if updated_points <= 0 then
+        if updated_points <= 0 then (
           printf "\nGame over. You lost all your points. Final score: %d\n"
-            updated_points
+            updated_points;
+          updated_points (* Return the final score when points drop to 0 *))
         else play_scenarios remaining_scenarios updated_points
   in
   printf "Welcome to the Border Patrol Training Simulation!\n";

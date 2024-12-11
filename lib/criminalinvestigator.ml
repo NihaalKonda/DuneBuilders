@@ -88,5 +88,14 @@ let play_criminal_investigator () =
       };
     ]
   in
+  let rec calculate_points scenarios total_points =
+    match scenarios with
+    | [] -> total_points (* Return the final score *)
+    | scenario :: rest ->
+        let points = play_scenario scenario in
+        calculate_points rest (total_points + points)
+  in
+  Printf.printf "Welcome to the Criminal Investigator Game!\n";
   let total_points = calculate_points scenarios 0 in
-  Printf.printf "Game over! Your total score is: %d\n" total_points
+  Printf.printf "Game over! Your final score is: %d\n" total_points;
+  total_points (* Return the total score *)

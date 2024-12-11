@@ -17,4 +17,4 @@ val handle_scenario : scenario -> int -> string list -> int * string list
 (** [play_traffic_cop ()] starts the Traffic Cop game, guiding the user through scenarios, 
     managing their points, tracking used words, and ending the game when all scenarios are completed 
     or the points drop to zero. *)
-val play_traffic_cop : unit -> unit
+val play_traffic_cop : unit -> int
