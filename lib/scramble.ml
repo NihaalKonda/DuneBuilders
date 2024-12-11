@@ -36,8 +36,8 @@ let rec get_scrambled_word used_words =
     in
     (shuffle_word word, word)
 
-(* Play the scramble game for a specified number of rounds *)
-let play_game rounds =
+(* Play the scramble game for three rounds *)
+let play_game () =
   Random.self_init ();
   let rec aux remaining_rounds points used_words =
     if remaining_rounds = 0 then
@@ -56,4 +56,4 @@ let play_game rounds =
             printf "Incorrect! The correct word was: %s\n" correct_word;
             aux (remaining_rounds - 1) points (correct_word :: used_words))
   in
-  aux rounds 0 []
+  aux 3 0 [] (* Always play exactly three rounds *)
