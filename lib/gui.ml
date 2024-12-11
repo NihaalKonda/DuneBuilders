@@ -29,7 +29,14 @@ let draw_button x y width height text =
 let display_welcome_message () =
   current_page := "welcome";
   clear_graph ();
-  moveto ((window_width / 2) - 100) ((window_height / 2) + 100);
+  let window_width = size_x () in
+  let window_height = size_y () in
+  let text_x =
+    (window_width - (String.length "Welcome to the Police Training Game!" * 6))
+    / 2
+  in
+  let text_y = (window_height / 2) + 100 in
+  moveto text_x text_y;
   set_color black;
   draw_string "Welcome to the Police Training Game!";
   let start_button_x = (window_width - button_width) / 2 in
@@ -40,7 +47,11 @@ let display_welcome_message () =
 let display_role_selection () =
   current_page := "role_selection";
   clear_graph ();
-  moveto ((window_width / 2) - 70) (window_height - 100);
+  let window_width = size_x () in
+  let window_height = size_y () in
+  let title_x = (window_width - (String.length "Choose Your Role:" * 6)) / 2 in
+  let title_y = window_height - 100 in
+  moveto title_x title_y;
   set_color black;
   draw_string "Choose Your Role:";
 
@@ -53,7 +64,9 @@ let display_role_selection () =
       let y =
         (window_height / 2) + (spacing * (List.length roles / 2)) - (i * spacing)
       in
-      draw_button ((window_width / 2) - 100) y button_width button_height role)
+      draw_button
+        ((window_width - button_width) / 2)
+        y button_width button_height role)
     roles
 
 (* Determine which role is clicked based on coordinates *)
@@ -74,7 +87,10 @@ let handle_role_click x y =
   |> Option.map (fun (r, _, _) -> r)
 
 (* After selecting a role, play its corresponding game *)
+(* After selecting a role, play its corresponding game and exit the GUI *)
 let play_role_game role =
+  close_graph ();
+  (* Closes the GUI window *)
   match role with
   | "Campus Police" -> play_campus_police ()
   | "Criminal Investigator" -> play_criminal_investigator ()
@@ -83,14 +99,15 @@ let play_role_game role =
   | _ -> ()
 
 (* Main game loop *)
+(* Main game loop *)
 let rec game_loop state =
   match state with
   | Welcome ->
       display_welcome_message ();
       let event = wait_next_event [ Button_down ] in
       if event.button then
-        let start_button_x = (window_width - button_width) / 2 in
-        let start_button_y = (window_height - button_height) / 2 in
+        let start_button_x = (size_x () - button_width) / 2 in
+        let start_button_y = (size_y () - button_height) / 2 in
         if
           event.mouse_x >= start_button_x
           && event.mouse_x <= start_button_x + button_width
@@ -105,10 +122,8 @@ let rec game_loop state =
       if event.button then
         match handle_role_click event.mouse_x event.mouse_y with
         | Some selected_role ->
-            (* Play the selected role's game in the terminal *)
-            play_role_game selected_role;
-            (* After the role game finishes, return to RoleSelection screen *)
-            game_loop RoleSelection
+            (* Play the selected role's game and exit the GUI *)
+            play_role_game selected_role
         | None -> game_loop RoleSelection
       else game_loop RoleSelection
 
