@@ -212,7 +212,7 @@ let rec handle_scenario scenario points =
           (* Handle the scramble game, if required *)
           if scenario.requires_scramble_game then (
             printf "\nSolve a scrambled puzzle to proceed:\n";
-            Scramble.play_game 3 (* Play scramble game with 3 rounds *));
+            Scramble.play_game () (* Play scramble game with 3 rounds *));
 
           (* Handle the math game, if required *)
           if scenario.requires_math_game then (

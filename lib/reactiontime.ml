@@ -74,6 +74,21 @@ let play_round () =
 
 let play_reaction_game () =
   Random.self_init ();
+  (* Print instructions before the first round *)
+  printf "Instructions:\n";
+  printf
+    "You will be told to 'Get ready...' and then after a short delay, 'NOW!' \
+     will appear.\n";
+  printf "As soon as you see 'NOW!', press Enter as quickly as possible.\n";
+  printf
+    "Pressing too early, taking too long (over 1 second), or pressing the \
+     wrong key will result in 0 points.\n\n";
+  printf "Press Enter when you are ready to begin...\n";
+  Stdlib.flush Stdlib.stdout;
+
+  (* Wait for user to press Enter to start *)
+  ignore (read_line ());
+
   let rounds = 3 in
   let rec loop n acc =
     if n = 0 then acc

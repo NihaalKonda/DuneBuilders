@@ -1,13 +1,12 @@
-(* scramble.mli *)
-
-(** [shuffle_word word] takes a string [word] and returns a new string with its characters shuffled. *)
 val shuffle_word : string -> string
+(** Shuffle the characters of a given string [word] and return the shuffled
+    string. *)
 
-(** [get_scrambled_word used_words] selects a random word from the word bank that is not in 
-    [used_words], scrambles it, and returns a tuple containing the scrambled word and the 
-    correct word. Raises [Failure] if no words are left. *)
 val get_scrambled_word : string list -> string * string
+(** Retrieve a scrambled word and its corresponding correct word, ensuring that
+    the correct word is not in the list of [used_words]. Raises [Failure] if no
+    more words are available. *)
 
-(** [play_game rounds] starts the scramble game for a specified number of [rounds]. 
-    Tracks used words to ensure no repetitions, and calculates and displays the player's score. *)
-val play_game : int -> unit
+val play_game : unit -> unit
+(** Play the scramble game for exactly three rounds. Displays the scrambled
+    words, prompts for user input, and tracks the score across the rounds. *)
