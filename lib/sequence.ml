@@ -5,11 +5,14 @@ let shuffle lst =
   let sorted = List.sort compare nd in
   List.map snd sorted
 
-let generate_sequence n =
-  List.init n (fun i -> int_of_float (2.0 ** float_of_int i))
+let generate_random_sequence n =
+  Random.self_init ();
+  let start = Random.int 10 + 1 in
+  let step = Random.int 5 + 1 in
+  List.init n (fun i -> start + (i * step))
 
 let get_sequence_data () =
-  let sequence = generate_sequence 5 in
+  let sequence = generate_random_sequence 5 in
   let displayed_sequence = List.rev (List.tl (List.rev sequence)) in
   let sequence_str =
     String.concat ", " (List.map string_of_int displayed_sequence) ^ ", ?"
@@ -23,7 +26,6 @@ let get_sequence_data () =
 
 let play_sequence_game () =
   Random.self_init ();
-
   let rec ask_question round points =
     if round > 3 then printf "Congratulations! You got all points: %d\n" points
     else
