@@ -15,8 +15,7 @@ val handle_scenario : scenario -> int -> string list -> int * string list
     required. For scenarios without a game, it directly updates the points.
     Returns the updated points and the list of used words. *)
 
-val play_traffic_cop : unit -> unit
-(** [play_traffic_cop ()] starts the Traffic Cop game, guiding the user through
-    multiple scenarios. It manages points, tracks used words for the scramble
-    game, and ends the game when all scenarios are completed or the points drop
-    to zero. *)
+(** [play_traffic_cop ()] starts the Traffic Cop game, guiding the user through scenarios, 
+    managing their points, tracking used words, and ending the game when all scenarios are completed 
+    or the points drop to zero. *)
+val play_traffic_cop : unit -> int

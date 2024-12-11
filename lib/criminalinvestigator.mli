@@ -5,4 +5,4 @@ type scenario = {
 
 val play_scenario : scenario -> int
 val calculate_points : scenario list -> int -> int
-val play_criminal_investigator : unit -> unit
+val play_criminal_investigator : unit -> int
