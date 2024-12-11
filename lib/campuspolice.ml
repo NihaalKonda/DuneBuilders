@@ -1,131 +1,125 @@
 open Printf
+open Scramble
 open Sequence
+open Reactiontime
+open Mathgame
 
-(* Define a type for a scenario *)
+(* Define the structure for a scenario *)
 type scenario = {
   description : string;
-  options : (string * int * string) list;
-      (* Option text, associated points, and explanation *)
-  requires_sequence_game : bool;
-      (* Does this scenario include the sequence game? *)
+  choices : (string * int * string) list;
+      (* Choice text, associated points, and explanation *)
+  games_required : bool * bool * bool * bool;
+      (* scramble, sequence, reaction, math *)
 }
 
-(* Define a list of scenarios for Campus Police *)
-let scenarios =
+(* List of scenarios for the Campus Police Game *)
+let scenario_list =
   [
     {
       description =
-        "It's late at night, and you receive a noise complaint near campus.\n\
-         You see students partying and drinking.";
-      options =
+        "You receive a call about excessive noise in a dorm. What will you do?";
+      choices =
         [
-          ( "Knock on the door and request to speak with the residents",
+          ( "Knock and speak with the residents",
             2,
-            "This is the best approach to de-escalate the situation while \
-             maintaining professionalism." );
-          ( "Call for backup before approaching",
-            1,
-            "This is a safe option but might escalate the situation \
-             unnecessarily." );
-          ( "Issue noise violation citations immediately",
-            -1,
-            "This is too aggressive and may lead to confrontation." );
+            "Professional and effective response." );
+          ("Call for backup", 1, "Safe, but might escalate unnecessarily.");
+          ("Issue citations immediately", -1, "Aggressive and confrontational.");
         ];
-      requires_sequence_game = false;
+      games_required = (false, false, false, false);
     };
     {
       description =
-        "A suspicious package is found in the dormitory lobby.\n\
-         You need to decide your next steps.";
-      options =
+        "You find an unmarked package in a dormitory. It might be dangerous.";
+      choices =
         [
-          ( "Call the bomb squad immediately",
+          ( "Call the bomb squad",
             2,
-            "This ensures safety and gets professionals involved quickly." );
-          ( "Evacuate the dorm and secure the area",
+            "Ensures safety with professional intervention." );
+          ( "Evacuate and secure the area",
             1,
-            "This is a good option but delays professional assessment." );
-          ( "Ignore the package and continue patrolling",
+            "Safety first, but delays expert assistance." );
+          ( "Ignore it and continue patrolling",
             -2,
-            "This is dangerous and irresponsible." );
+            "Reckless and risky decision." );
         ];
-      requires_sequence_game = true;
-      (* Trigger the sequence game *)
+      games_required = (false, true, false, false);
     };
     {
       description =
-        "You spot an argument escalating into a fight near the campus \
-         cafeteria.";
-      options =
+        "You witness a heated argument near the campus cafeteria escalating \
+         into a fight.";
+      choices =
         [
-          ( "Intervene and de-escalate the situation",
-            2,
-            "This is the most effective way to prevent further escalation." );
-          ( "Call for backup and monitor the situation",
-            1,
-            "This ensures safety but may delay resolution." );
-          ( "Ignore the situation and continue patrolling",
-            -1,
-            "This is neglectful and could result in harm." );
+          ("Intervene immediately", 2, "De-escalates the situation effectively.");
+          ("Call for backup", 1, "Safe, but delays resolution.");
+          ("Walk away", -1, "Neglectful and irresponsible.");
         ];
-      requires_sequence_game = false;
+      games_required = (false, false, true, false);
     };
   ]
 
-(* Display a single scenario and get the user's choice *)
-let rec handle_scenario scenario points =
-  printf "\n%s\n" scenario.description;
+(* Process a single scenario *)
+let rec process_scenario sc current_points =
+  printf "\n%s\n" sc.description;
   List.iteri
-    (fun i (option, _, _) -> printf "%d) %s\n" (i + 1) option)
-    scenario.options;
+    (fun idx (text, _, _) -> printf "%d) %s\n" (idx + 1) text)
+    sc.choices;
   printf "Enter your choice: ";
+
   match read_line () with
   | exception End_of_file ->
       printf "No input received. Exiting game.\n";
-      points (* Return current points *)
+      current_points
   | input -> (
       try
         let choice = int_of_string input in
-        if choice < 1 || choice > List.length scenario.options then (
-          printf "Choice out of range. No points awarded.\n";
-          handle_scenario scenario points (* Retry current scenario *))
+        if choice < 1 || choice > List.length sc.choices then (
+          printf "Invalid choice. Try again.\n";
+          process_scenario sc current_points)
         else
-          let _, points_for_choice, explanation =
-            List.nth scenario.options (choice - 1)
+          let _, points_earned, explanation =
+            List.nth sc.choices (choice - 1)
           in
           printf "\n%s\n" explanation;
-          (* Compute updated points first *)
-          let updated_points = points + points_for_choice in
+          let new_points = current_points + points_earned in
 
-          (* Handle the sequence game, if required *)
-          (* Check if this scenario triggers the sequence game *)
-          if scenario.requires_sequence_game then (
-            printf
-              "\n\
-               It's time to test your problem-solving skills with a sequence \
-               game!\n";
-            Sequence.play_sequence_game () (* Play the sequence game *));
+          (* Handle game triggers *)
+          let play_scramble, play_sequence, play_reaction, play_math =
+            sc.games_required
+          in
+          if play_scramble then (
+            printf "\nScramble game activated!\n";
+            Scramble.play_game ());
+          if play_sequence then (
+            printf "\nSequence game activated!\n";
+            Sequence.play_sequence_game ());
+          if play_reaction then (
+            printf "\nReaction time game activated!\n";
+            Reactiontime.play_reaction_game ());
+          if play_math then (
+            printf "\nMath quiz activated!\n";
+            Mathgame.run_quiz ());
 
-          (* Return updated points after handling sequence game *)
-          updated_points
-      with
-      | Failure _ ->
-          printf "Invalid input. Please enter a valid number.\n";
-          handle_scenario scenario points (* Retry current scenario *)
-      | Invalid_argument _ ->
-          printf "An error occurred. Please try again.\n";
-          handle_scenario scenario points (* Retry current scenario *))
+          new_points
+      with Failure _ ->
+        printf "Please enter a valid number.\n";
+        process_scenario sc current_points)
 
 (* Play the Campus Police game *)
 let play_campus_police () =
-  (* Play the Campus Police game and return the final score *)
-  let rec play_scenarios scenarios points =
+  let rec play_game scenarios points =
     match scenarios with
-    | [] -> points (* Return the final score when scenarios are exhausted *)
-    | scenario :: remaining_scenarios ->
-        let updated_points = handle_scenario scenario points in
-        if updated_points <= 0 then updated_points
-        else play_scenarios remaining_scenarios updated_points
+    | [] ->
+        printf "\nAll scenarios completed. Final score: %d\n" points;
+        points
+    | sc :: remaining ->
+        let updated_points = process_scenario sc points in
+        if updated_points <= 0 then (
+          printf "\nGame over. You lost all your points.\n";
+          updated_points)
+        else play_game remaining updated_points
   in
   printf "Welcome to the Campus Police Game!\n";
-  play_scenarios scenarios 5 (* Start the game with 5 points *)
+  play_game scenario_list 5

@@ -7,4 +7,4 @@ type scenario = {
   requires_math_game : bool;
 }
 
-val play_criminal_investigator : unit -> unit
+val play_criminal_investigator : unit -> int

@@ -182,13 +182,17 @@ let rec handle_scenario scenario points =
 let play_criminal_investigator () =
   let rec play_scenarios scenarios points =
     match scenarios with
-    | [] -> printf "\nGame over. Your final score is: %d\n" points
+    | [] ->
+        printf "\nGame over. Your final score is: %d\n" points;
+        points (* Return the final score when scenarios are exhausted *)
     | scenario :: remaining_scenarios ->
         let updated_points = handle_scenario scenario points in
-        if updated_points <= 0 then
+        if updated_points <= 0 then (
           printf "\nGame over. You lost all your points. Final score: %d\n"
-            updated_points
+            updated_points;
+          updated_points
+          (* Return the final score when points drop to 0 or below *))
         else play_scenarios remaining_scenarios updated_points
   in
   printf "Welcome to the Criminal Investigator Simulation!\n";
-  play_scenarios scenarios 5
+  play_scenarios scenarios 5 (* Start the game with 5 points *)

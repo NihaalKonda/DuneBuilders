@@ -99,5 +99,5 @@ let play_reaction_game () =
       loop (n - 1) (acc + points)
   in
   let total_points = loop rounds 0 in
-  printf "Game over. Your total score is %d\n" total_points;
+  printf "Game over. Your total score for this game is %d\n" total_points;
   Stdlib.flush Stdlib.stdout
