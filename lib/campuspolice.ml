@@ -34,6 +34,51 @@ let scenarios =
         ("Walk away", -1, "Neglectful and irresponsible.");
       ]
       false false true false;
+    create_scenario
+      "You find a student passed out near the campus library late at night. \
+       What will you do?"
+      [
+        ( "Check their condition and call emergency services",
+          2,
+          "A prompt and responsible course of action." );
+        ( "Escort them back to their dorm and suggest rest",
+          1,
+          "Helpful, but misses a chance to ensure proper care." );
+        ( "Ignore the situation and continue patrolling",
+          -2,
+          "Neglectful and potentially harmful." );
+      ]
+      false false false false;
+    create_scenario
+      "You notice a car driving recklessly through the campus parking lot. \
+       What is your response?"
+      [
+        ( "Stop the vehicle and issue a citation",
+          2,
+          "Enforces campus safety and discourages reckless driving." );
+        ( "Take down the license plate and report the incident",
+          1,
+          "Ensures accountability, but allows the driver to leave." );
+        ( "Ignore it, as no one seems to be in danger",
+          -1,
+          "Fails to address a serious safety concern." );
+      ]
+      false false false true;
+    create_scenario
+      "A fire alarm goes off in a dorm building, and students are panicking. \
+       What will you do?"
+      [
+        ( "Ensure everyone evacuates and assist the fire department",
+          2,
+          "Promotes safety and coordinates emergency response." );
+        ( "Attempt to locate the source of the alarm",
+          1,
+          "Proactive, but could put you at unnecessary risk." );
+        ( "Ignore the alarm, assuming it’s a false alarm",
+          -2,
+          "Neglects the possibility of a real emergency." );
+      ]
+      true false false false;
   ]
 
 let play_campus_police () =
