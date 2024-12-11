@@ -41,7 +41,8 @@ let play_sequence_game () =
             let choice = int_of_string input in
             let selected_answer = List.nth answers (choice - 1) in
             if selected_answer = correct_answer then (
-              printf "Correct! Moving to next question...\n";
+              if round = 3 then printf "Correct! You have completed the game.\n"
+              else printf "Correct! Moving to next question...\n";
               ask_question (round + 1) (points + 1))
             else (
               printf "Incorrect! The correct answer was: %d\n" correct_answer;
