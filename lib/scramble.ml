@@ -1,6 +1,5 @@
 open Printf
 
-(* Helper function to shuffle characters in a string *)
 let shuffle_word word =
   let chars = List.init (String.length word) (String.get word) in
   let shuffled_chars =
@@ -9,7 +8,6 @@ let shuffle_word word =
   in
   String.concat "" (List.map (String.make 1) shuffled_chars)
 
-(* Word bank for the game: police/law enforcement-related terms *)
 let words =
   [
     "arrest";
@@ -24,7 +22,6 @@ let words =
     "crime";
   ]
 
-(* Get a scrambled word and its correct answer, avoiding repeats *)
 let rec get_scrambled_word used_words =
   let remaining_words =
     List.filter (fun word -> not (List.mem word used_words)) words
@@ -36,7 +33,6 @@ let rec get_scrambled_word used_words =
     in
     (shuffle_word word, word)
 
-(* Play the scramble game for three rounds *)
 let play_game () =
   Random.self_init ();
   let rec aux remaining_rounds points used_words =
@@ -56,4 +52,4 @@ let play_game () =
             printf "Incorrect! The correct word was: %s\n" correct_word;
             aux (remaining_rounds - 1) points (correct_word :: used_words))
   in
-  aux 3 0 [] (* Always play exactly three rounds *)
+  aux 3 0 []

@@ -1,17 +1,10 @@
-(* traffic_cop.mli *)
-
 type scenario = {
-  description : string;  (** The description of the scenario. *)
+  description : string;
   options : (string * int * string) list;
-      (** List of options with their text, associated points, and explanations. *)
   requires_scramble_game : bool;
-      (** Whether this scenario triggers the scramble game. *)
   requires_sequence_game : bool;
-      (** Whether this scenario triggers the sequence game. *)
   requires_reaction_game : bool;
-      (** Whether this scenario triggers the reaction game. *)
   requires_math_quiz : bool;
-      (** Whether this scenario triggers the math quiz game. *)
 }
 (** The type representing a scenario in the Traffic Cop game. *)
 
