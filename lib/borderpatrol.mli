@@ -8,4 +8,4 @@ type scenario = {
   requires_math_game : bool;
 }
 
-val play_border_patrol : unit -> unit
+val play_border_patrol : unit -> int
