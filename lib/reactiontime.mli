@@ -16,4 +16,4 @@
     After 3 rounds, the final score is printed.
 *)
 
-val play_reaction_game : unit -> unit
+val play_reaction_game : unit -> int

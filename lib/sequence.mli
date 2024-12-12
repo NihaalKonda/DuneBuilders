@@ -17,7 +17,7 @@ val get_sequence_data : unit -> string * int * int list
     - [answers] is a shuffled list of possible answers, including the correct
       one. *)
 
-val play_sequence_game : unit -> unit
+val play_sequence_game : unit -> int
 (** [play_sequence_game ()] starts the sequence game, where the user is asked to
     complete a random sequence. The user is presented with 3 questions and earns
     points for each correct answer. *)

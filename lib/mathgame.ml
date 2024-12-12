@@ -29,11 +29,12 @@ let rec ask_question question answer =
     ask_question question answer
 
 (* Run the math quiz for exactly 5 questions *)
-let run_quiz () =
+let play_quiz () =
   Random.self_init ();
   let rec play questions_left points =
-    if questions_left = 0 then
-      Printf.printf "\nQuiz over! You scored %d points.\n" points
+    if questions_left = 0 then (
+      Printf.printf "\nQuiz over! You scored %d points.\n" points;
+      points (* Return the total points *))
     else
       let question, answer = generate_question () in
       let points_earned = ask_question question answer in
