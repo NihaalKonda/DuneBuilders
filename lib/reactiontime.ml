@@ -65,9 +65,9 @@ let play_round () =
            was printed *)
         printf "You clicked it too soon!\n";
         0)
-      else if diff_ms < 200.0 then 3
-      else if diff_ms < 400.0 then 2
-      else if diff_ms < 600.0 then 1
+      else if diff_ms < 300.0 then 3
+      else if diff_ms < 600.0 then 2
+      else if diff_ms < 900.0 then 1
       else 0
     else (* Wrong input *)
       0
