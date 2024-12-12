@@ -1,3 +1,5 @@
 (library
  (name dunebuilders)
- (libraries graphics csv unix))
+ (libraries graphics csv unix)
+ (instrumentation
+  (backend bisect_ppx)))
