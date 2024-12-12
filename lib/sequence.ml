@@ -27,7 +27,9 @@ let get_sequence_data () =
 let play_sequence_game () =
   Random.self_init ();
   let rec ask_question round points =
-    if round > 3 then printf "Congratulations! You got all points: %d\n" points
+    if round > 3 then (
+      printf "Congratulations! You got all points: %d\n" points;
+      points (* Return the total points *))
     else
       let sequence_str, correct_answer, answers = get_sequence_data () in
       printf "\nComplete the sequence: %s\n" sequence_str;
@@ -35,7 +37,9 @@ let play_sequence_game () =
       List.iteri (fun i ans -> printf "%d) %d\n" (i + 1) ans) answers;
       printf "Enter your choice: ";
       match read_line () with
-      | exception End_of_file -> printf "No input received.\n"
+      | exception End_of_file ->
+          printf "No input received. Exiting game.\n";
+          points (* Return the current points *)
       | input -> (
           try
             let choice = int_of_string input in
@@ -46,9 +50,14 @@ let play_sequence_game () =
               ask_question (round + 1) (points + 1))
             else (
               printf "Incorrect! The correct answer was: %d\n" correct_answer;
-              printf "Game over. You earned %d points.\n" points)
+              printf "Game over. You earned %d points.\n" points;
+              points (* Return the current points *))
           with
-          | Failure _ -> printf "Invalid input. Game over.\n"
-          | Invalid_argument _ -> printf "Choice out of range. Game over.\n")
+          | Failure _ ->
+              printf "Invalid input. Game over.\n";
+              points (* Return the current points *)
+          | Invalid_argument _ ->
+              printf "Choice out of range. Game over.\n";
+              points (* Return the current points *))
   in
   ask_question 1 0

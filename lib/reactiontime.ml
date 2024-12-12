@@ -92,12 +92,15 @@ let play_reaction_game () =
   let rounds = 3 in
   let rec loop n acc =
     if n = 0 then acc
+      (* Return accumulated points when all rounds are complete *)
     else
       let points = play_round () in
       printf "You earned %d points this round.\n\n" points;
       Stdlib.flush Stdlib.stdout;
       loop (n - 1) (acc + points)
+    (* Recursively add points for each round *)
   in
   let total_points = loop rounds 0 in
   printf "Game over. Your total score for this game is %d\n" total_points;
-  Stdlib.flush Stdlib.stdout
+  Stdlib.flush Stdlib.stdout;
+  total_points (* Return the total score *)

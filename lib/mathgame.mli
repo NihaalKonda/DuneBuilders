@@ -9,6 +9,6 @@ val ask_question : string -> int -> int
     - [answer] is the correct result. Returns [1] if the user's answer is
       correct, and [0] otherwise. *)
 
-val run_quiz : unit -> unit
+val play_quiz : unit -> int
 (** Run a math quiz consisting of exactly 5 questions. Tracks and displays the
     user's total points at the end of the quiz. *)
