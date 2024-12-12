@@ -11,3 +11,4 @@ val create_scenario :
 
 val handle_scenario : scenario -> int -> int
 val play_scenarios : scenario list -> int -> int
+val get_scenario_options : scenario -> (string * int * string) list

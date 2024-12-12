@@ -138,11 +138,16 @@ let rec game_loop state completed_roles =
       if event.button then
         match handle_role_click event.mouse_x event.mouse_y with
         | Some selected_role ->
-            let role, score = play_role_game selected_role in
-            let updated_roles = (role, score) :: completed_roles in
-            if List.length updated_roles = 4 then
-              game_loop (FinalScreen updated_roles) updated_roles
-            else game_loop RoleSelection updated_roles
+            if List.exists (fun (r, _) -> r = selected_role) completed_roles
+            then
+              (* Role already played, redisplay selection screen *)
+              game_loop RoleSelection completed_roles
+            else
+              let role, score = play_role_game selected_role in
+              let updated_roles = (role, score) :: completed_roles in
+              if List.length updated_roles = 4 then
+                game_loop (FinalScreen updated_roles) updated_roles
+              else game_loop RoleSelection updated_roles
         | None -> game_loop RoleSelection completed_roles
       else game_loop RoleSelection completed_roles
   | FinalScreen completed_roles ->

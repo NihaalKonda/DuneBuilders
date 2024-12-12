@@ -13,6 +13,8 @@ type scenario = {
   requires_math_game : bool;
 }
 
+let get_scenario_options scenario = scenario.options
+
 let create_scenario desc opts scramble sequence reaction math =
   {
     description = desc;

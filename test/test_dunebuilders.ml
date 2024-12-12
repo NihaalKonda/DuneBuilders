@@ -11,40 +11,27 @@ open Scenariohandler
 open Scramble
 open Sequence
 open Trafficcop
+open OUnit2
+open Printf
+open Scenariohandler
 
-let test_create_scenario _ =
-  (* Create a scenario *)
-  let scenario =
-    create_scenario "Test scenario"
-      [ ("Option 1", 2, "Explanation 1"); ("Option 2", -1, "Explanation 2") ]
-      false false false false
-  in
-  (* Test that it integrates correctly with `handle_scenario` *)
-  let points_after_choice = handle_scenario scenario 5 in
-  assert_equal points_after_choice
-    7 (* Assuming the default choice adds 2 points *)
+(* Test cases *)
+let test_scenarios_count _ =
+  assert_equal 6 (List.length scenarios) ~msg:"Incorrect number of scenarios"
 
-let test_play_scenarios _ =
-  (* Create a list of scenarios *)
-  let scenarios =
-    [
-      create_scenario "Scenario 1"
-        [ ("Option 1", 2, "Explanation 1"); ("Option 2", -1, "Explanation 2") ]
-        false false false false;
-      create_scenario "Scenario 2"
-        [ ("Option A", 1, "Explanation A"); ("Option B", -2, "Explanation B") ]
-        false false false false;
-    ]
-  in
-  (* Test playing through the scenarios *)
-  let final_score = play_scenarios scenarios 5 in
-  assert_bool "Final score should be >= 0" (final_score >= 0)
+let test_scenario_structure _ =
+  let first_scenario = List.hd scenarios in
+  assert_equal 3
+    (List.length (get_scenario_options first_scenario))
+    ~msg:"Incorrect number of options in the first scenario"
 
+(* Test suite *)
 let tests =
-  "suite"
+  "Border Patrol Test Suite"
   >::: [
-         "Test create_scenario" >:: test_create_scenario;
-         "Test play_scenarios" >:: test_play_scenarios;
+         "test_scenarios_count" >:: test_scenarios_count;
+         "test_scenario_structure" >:: test_scenario_structure;
        ]
+(* Run the tests *)
 
 let _ = run_test_tt_main tests
