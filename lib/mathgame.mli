@@ -1,7 +1,6 @@
-val generate_question : unit -> string * int
-(** Generate a random math question and its correct answer. Returns a tuple
-    [(question, answer)] where [question] is a string representing the math
-    operation and [answer] is the correct result. *)
+val questions : (string * int) list
+(** [questions] is a list of tuples of string for the question and int for the
+    answer *)
 
 val ask_question : string -> int -> int
 (** Ask the user a math question and return the points earned.

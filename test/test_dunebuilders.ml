@@ -59,19 +59,14 @@ let test_scenario_structure _ =
 
 (* MATH GAME TESTS *)
 
-let test_generate_question _ =
-  let question1, answer1 = generate_question () in
-  let question2, answer2 = generate_question () in
-  let question3, answer3 = generate_question () in
-  assert_equal question1 "5 + 13";
-  assert_equal answer1 18;
-  assert_equal question2 "16 + 47";
-  assert_equal answer2 63;
-  assert_equal question3 "46 * 38";
-  assert_equal answer3 1748
+(* let test_generate_question _ = let question1, answer1 = generate_question ()
+   in let question2, answer2 = generate_question () in let question3, answer3 =
+   generate_question () in assert_equal question1 "5 + 13"; assert_equal answer1
+   18; assert_equal question2 "16 + 47"; assert_equal answer2 63; assert_equal
+   question3 "46 * 38"; assert_equal answer3 1748 *)
 
 let test_check_correct_answer _ =
-  let input = "7\n" in
+  let input = "8\n" in
   let old_stdin = Unix.dup Unix.stdin in
   let pipe_read, pipe_write = Unix.pipe () in
   Unix.write_substring pipe_write input 0 (String.length input) |> ignore;
@@ -80,7 +75,7 @@ let test_check_correct_answer _ =
 
   let points =
     try
-      let question, answer = ("3 + 4", 7) in
+      let question, answer = ("5 + 3", 8) in
       ask_question question answer
     with exn ->
       Unix.dup2 old_stdin Unix.stdin;
@@ -102,7 +97,7 @@ let test_check_incorrect_answer _ =
 
   let points =
     try
-      let question, answer = ("10 - 5", 5) in
+      let question, answer = ("10 - 7", 3) in
       ask_question question answer
     with exn ->
       Unix.dup2 old_stdin Unix.stdin;
@@ -134,25 +129,20 @@ let test_play_quiz _ =
 
   assert_equal points 0
 
-let test_random_reproducibility _ =
-  Random.init 123;
-  let question1, answer1 = generate_question () in
-  let question2, answer2 = generate_question () in
+(* let test_random_reproducibility _ = Random.init 123; let question1, answer1 =
+   generate_question () in let question2, answer2 = generate_question () in
 
-  Random.init 123;
-  let question1', answer1' = generate_question () in
-  let question2', answer2' = generate_question () in
+   Random.init 123; let question1', answer1' = generate_question () in let
+   question2', answer2' = generate_question () in
 
-  assert_equal question1 question1';
-  assert_equal answer1 answer1';
-  assert_equal question2 question2';
-  assert_equal answer2 answer2';
+   assert_equal question1 question1'; assert_equal answer1 answer1';
+   assert_equal question2 question2'; assert_equal answer2 answer2';
 
-  Random.init 456;
-  let question3, answer3 = generate_question () in
-  assert_bool "Different seeds should give different results"
-    (question3 <> question1 || answer3 <> answer1)
+   Random.init 456; let question3, answer3 = generate_question () in assert_bool
+   "Different seeds should give different results" (question3 <> question1 ||
+   answer3 <> answer1) *)
 
+(* SCENARIO TESTS *)
 let test_scenario_count _ =
   assert_equal 6 (List.length scenarios) ~msg:"Incorrect number of scenarios"
 
@@ -169,6 +159,7 @@ let test_play_scenario _ =
   let score = play_scenarios [ scenario ] 1 in
   assert_equal 1 score ~msg:"Scenario did not return the correct score"
 
+(* SCRAMBLE TESTS *)
 let test_shuffle_word _ =
   let word = "investigation" in
   let shuffled = shuffle_word word in
@@ -188,17 +179,25 @@ let test_get_scrambled_word _ =
     (List.sort Char.compare
        (List.init (String.length scrambled) (String.get scrambled)))
 
-(* let test_play_game _ = let input = "arrest\n" ^ "wrong_answer\n" ^ "patrol\n"
-   in let old_stdin = Unix.dup Unix.stdin in let pipe_read, pipe_write =
-   Unix.pipe () in Unix.write_substring pipe_write input 0 (String.length input)
-   |> ignore; Unix.close pipe_write; Unix.dup2 pipe_read Unix.stdin;
+let test_play_game _ =
+  let input = "arrest\n" ^ "wrong_answer\n" ^ "patrol\n" in
+  let old_stdin = Unix.dup Unix.stdin in
+  let pipe_read, pipe_write = Unix.pipe () in
+  Unix.write_substring pipe_write input 0 (String.length input) |> ignore;
+  Unix.close pipe_write;
+  Unix.dup2 pipe_read Unix.stdin;
 
-   let points = try play_game () with exn -> Unix.dup2 old_stdin Unix.stdin;
-   raise exn in
+  let points =
+    try play_game ()
+    with exn ->
+      Unix.dup2 old_stdin Unix.stdin;
+      raise exn
+  in
 
-   Unix.dup2 old_stdin Unix.stdin; Unix.close old_stdin;
+  Unix.dup2 old_stdin Unix.stdin;
+  Unix.close old_stdin;
 
-   assert_equal points 2 *)
+  assert_equal points 2
 
 let test_handle_scenario_valid_choice _ =
   let scenario =
@@ -623,26 +622,22 @@ let test_play_sequence_game_correct _ =
 let tests =
   "Test Suite"
   >::: [
-         "test_scenarios_count" >:: test_scenarios_count;
-         "test_scenario_structure" >:: test_scenario_structure;
-         "test_generate_question" >:: test_generate_question;
+         (* MATH GAME TESTS *)
          "test_check_correct_answer" >:: test_check_correct_answer;
          "test_check_incorrect_answer" >:: test_check_incorrect_answer;
-         (* "test_play_quiz" >:: test_play_quiz; *)
-         "test_random_reproducibility" >:: test_random_reproducibility;
+         "test_play_quiz" >:: test_play_quiz;
+         "test_scenarios_count" >:: test_scenarios_count;
+         "test_scenario_structure" >:: test_scenario_structure;
          "test_scenario_count" >:: test_scenario_count;
          "test_scenario_options_count" >:: test_scenario_options_count;
          "test_play_scenario" >:: test_play_scenario;
          "test_scenarios_count" >:: test_scenarios_count;
          "test_scenario_structure" >:: test_scenario_structure;
-         (* "test_generate_question" >:: test_generate_question; *)
          "test_check_correct_answer" >:: test_check_correct_answer;
          "test_check_incorrect_answer" >:: test_check_incorrect_answer;
-         (* "test_play_quiz" >:: test_play_quiz; *)
-         "test_random_reproducibility" >:: test_random_reproducibility;
          "test_shuffle_word" >:: test_shuffle_word;
          "test_get_scrambled_word" >:: test_get_scrambled_word;
-         (* "test_play_game" >:: test_play_game; *)
+         "test_play_game" >:: test_play_game;
          "test_handle_scenario_valid_choice"
          >:: test_handle_scenario_valid_choice;
          "test_handle_scenario_invalid_choice"
@@ -651,13 +646,18 @@ let tests =
          >:: test_handle_scenario_valid_choice;
          "test_handle_scenario_with_mini_games"
          >:: test_handle_scenario_with_mini_games;
-         (* "test_play_game_all_correct" >:: test_play_game_all_correct; *)
-         (* "test_play_traffic_cop_no_input" >:: test_play_traffic_cop_no_input; *)
-         (* "test_play_traffic_cop_invalid_input" >::
-            test_play_traffic_cop_invalid_input; *)
-         (* "test_game_incorrect_answer" >:: test_game_incorrect_answer; *)
-         (* "test_handle_scenario_with_sequence_game" >::
-            test_handle_scenario_with_sequence_game; *)
+         "test_generate_random_sequence" >:: test_generate_random_sequence;
+         "test_shuffle" >:: test_shuffle;
+         "test_get_sequence_data" >:: test_get_sequence_data;
+         "test_game_invalid_input" >:: test_game_invalid_input;
+         "test_game_choice_out_of_range" >:: test_game_choice_out_of_range;
+         "test_play_game_all_correct" >:: test_play_game_all_correct;
+         "test_play_traffic_cop_no_input" >:: test_play_traffic_cop_no_input;
+         "test_play_traffic_cop_invalid_input"
+         >:: test_play_traffic_cop_invalid_input;
+         "test_game_incorrect_answer" >:: test_game_incorrect_answer;
+         "test_handle_scenario_with_sequence_game"
+         >:: test_handle_scenario_with_sequence_game;
          "test_play_sentiment_game" >:: test_play_sentiment_game;
          "test_generate_sentiment_question" >:: test_generate_sentiment_question;
          "test_play_sequence_game_correct" >:: test_play_sequence_game_correct;
