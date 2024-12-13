@@ -4,19 +4,17 @@ open Trafficcop
 open Borderpatrol
 open Criminalinvestigator
 
-(* Define the type representing the game states *)
 type game_state =
   | Welcome
   | RoleSelection
-  | FinalScreen of (string * int) list (* List of roles and scores *)
+  | RoleSelected of string
+  | FinalScreen of (string * int) list
 
-(* GUI Constants *)
 let window_width = 600
 let window_height = 400
 let button_width = 200
 let button_height = 50
 
-(* Utility to draw a button *)
 let draw_button x y width height text =
   set_color blue;
   fill_rect x y width height;
@@ -26,7 +24,6 @@ let draw_button x y width height text =
   moveto text_x text_y;
   draw_string text
 
-(* Display the welcome screen *)
 let display_welcome_message () =
   clear_graph ();
   let text_x =
@@ -42,7 +39,6 @@ let display_welcome_message () =
   draw_button start_button_x start_button_y button_width button_height "Start";
   synchronize ()
 
-(* Display the role selection screen *)
 let display_role_selection () =
   clear_graph ();
   let title_x = (window_width - (String.length "Choose Your Role:" * 6)) / 2 in
@@ -65,7 +61,18 @@ let display_role_selection () =
     roles;
   synchronize ()
 
-(* Display the final screen *)
+let display_role_selected selected_role =
+  clear_graph ();
+  let message =
+    Printf.sprintf "You selected: %s. Starting the game..." selected_role
+  in
+  let text_x = (window_width - (String.length message * 6)) / 2 in
+  let text_y = window_height / 2 in
+  moveto text_x text_y;
+  set_color black;
+  draw_string message;
+  synchronize ()
+
 let display_final_screen completed_roles =
   clear_graph ();
   set_color black;
@@ -86,7 +93,6 @@ let display_final_screen completed_roles =
   draw_button restart_x restart_y button_width button_height "Restart";
   synchronize ()
 
-(* Determine which role is clicked based on coordinates *)
 let handle_role_click x y =
   let roles =
     [ "Campus Police"; "Criminal Investigator"; "Traffic Cop"; "Border Patrol" ]
@@ -102,7 +108,6 @@ let handle_role_click x y =
          x >= bx && x <= bx + button_width && y >= by && y <= by + button_height)
   |> Option.map (fun (r, _, _) -> r)
 
-(* Play the role's game and return the score *)
 let play_role_game role =
   close_graph ();
   let role_score =
@@ -116,7 +121,6 @@ let play_role_game role =
   Graphics.open_graph (Printf.sprintf " %dx%d" window_width window_height);
   (role, role_score)
 
-(* Main game loop *)
 let rec game_loop state completed_roles =
   match state with
   | Welcome ->
@@ -139,17 +143,18 @@ let rec game_loop state completed_roles =
         match handle_role_click event.mouse_x event.mouse_y with
         | Some selected_role ->
             if List.exists (fun (r, _) -> r = selected_role) completed_roles
-            then
-              (* Role already played, redisplay selection screen *)
-              game_loop RoleSelection completed_roles
-            else
-              let role, score = play_role_game selected_role in
-              let updated_roles = (role, score) :: completed_roles in
-              if List.length updated_roles = 4 then
-                game_loop (FinalScreen updated_roles) updated_roles
-              else game_loop RoleSelection updated_roles
+            then game_loop RoleSelection completed_roles
+            else game_loop (RoleSelected selected_role) completed_roles
         | None -> game_loop RoleSelection completed_roles
       else game_loop RoleSelection completed_roles
+  | RoleSelected selected_role ->
+      display_role_selected selected_role;
+      Unix.sleepf 2.0;
+      let role, score = play_role_game selected_role in
+      let updated_roles = (role, score) :: completed_roles in
+      if List.length updated_roles = 4 then
+        game_loop (FinalScreen updated_roles) updated_roles
+      else game_loop RoleSelection updated_roles
   | FinalScreen completed_roles ->
       display_final_screen completed_roles;
       let event =
@@ -170,12 +175,10 @@ let rec game_loop state completed_roles =
         print_endline "Thank you for playing!")
       else game_loop Welcome []
 
-(* Initialize the GUI window *)
 let initialize_gui () =
   Graphics.open_graph (Printf.sprintf " %dx%d" window_width window_height);
   Graphics.auto_synchronize false;
   Graphics.set_window_title "Police Training Game";
   game_loop Welcome []
 
-(* Start the game *)
 let () = initialize_gui ()
