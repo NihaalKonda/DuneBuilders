@@ -8,7 +8,7 @@ type game_state =
   | Welcome
   | RoleSelection
   | RoleSelected of string
-  | RoleComplete of (string * int) (* New state after finishing one role *)
+  | RoleComplete of (string * int)
   | FinalScreen of (string * int) list
 
 let window_width = 600
@@ -77,7 +77,6 @@ let display_role_selected selected_role =
   draw_string message;
   synchronize ()
 
-(* New function to display the role completion screen *)
 let display_role_complete (role, score) =
   clear_graph ();
   let message = Printf.sprintf "%s Game Over! Your Score: %d" role score in
@@ -168,7 +167,6 @@ let rec game_loop state completed_roles =
       if event.button then
         match handle_role_click event.mouse_x event.mouse_y with
         | Some selected_role ->
-            (* If role was already played, just ignore or allow replay *)
             game_loop (RoleSelected selected_role) completed_roles
         | None -> game_loop RoleSelection completed_roles
       else game_loop RoleSelection completed_roles
@@ -176,8 +174,7 @@ let rec game_loop state completed_roles =
       display_role_selected selected_role;
       Unix.sleepf 2.0;
       let role, score = play_role_game selected_role in
-      (* After finishing the role, go to the RoleComplete state to show final
-         score *)
+
       game_loop (RoleComplete (role, score)) ((role, score) :: completed_roles)
   | RoleComplete (role, score) ->
       display_role_complete (role, score);
@@ -190,11 +187,8 @@ let rec game_loop state completed_roles =
         && event.mouse_y >= button_y
         && event.mouse_y <= button_y + button_height
       then
-        (* After the player sees their score for the finished role, return them
-           to the role selection screen. *)
         let updated_roles = completed_roles in
-        (* If all four roles are done, show final screen, else back to
-           selection *)
+
         if List.length updated_roles = 4 then
           game_loop (FinalScreen updated_roles) updated_roles
         else game_loop RoleSelection updated_roles

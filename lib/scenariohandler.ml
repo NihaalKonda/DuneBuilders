@@ -50,7 +50,7 @@ let rec handle_scenario scenario points =
             get_valid_input (attempts + 1))
   in
   match get_valid_input 0 with
-  | None -> points (* Exit if no valid input *)
+  | None -> points
   | Some choice ->
       let _, points_for_choice, explanation =
         List.nth scenario.options (choice - 1)
@@ -59,7 +59,6 @@ let rec handle_scenario scenario points =
 
       let updated_points = points + points_for_choice in
 
-      (* Mini-games contribution *)
       let updated_points =
         if scenario.requires_sequence_game then (
           printf

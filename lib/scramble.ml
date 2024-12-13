@@ -1,6 +1,5 @@
 open Printf
 
-(* Scrambles the letters in a word *)
 let scramble_word word =
   let chars = List.init (String.length word) (String.get word) in
   let shuffled_chars =
@@ -20,7 +19,6 @@ let get_word used_words =
 
 let play_game () =
   Random.self_init ();
-  (* Ensure randomness for shuffling *)
   let rec aux remaining_rounds points used_words =
     if remaining_rounds = 0 then (
       printf "\nGame over! You scored %d points.\n" points;

@@ -8,4 +8,4 @@ Collaborators:
 - Aly worked on the traffic cop role and sentiment game. 
 - Sanya worked on the border patrol role and sequence game. 
 - We then all contributed to refactoring the code, adding test cases, implementing the GUI, and fixing bugs within our program.
-- We used ChatGPT for a number of things in the development of our project including assistance with generating test cases, ideas for games and roles, creating the scenarios, refactoring our code for each role into scenariohandler.ml, implementing the GUI, and the overall structure of the codebase.
+- We used ChatGPT for a number of things in the development of our project including assistance with generating test cases, ideas for games and roles, creating the scenarios, refactoring our code for each role into scenariohandler.ml, implementing the GUI, and the overall structure of the codebase. Since some libraries we were using were things we were reading up on and learning together, especially with GUI and testing with mock inputs, generative AI was especially useful in debugging errors and creating edge test case ideas. 
