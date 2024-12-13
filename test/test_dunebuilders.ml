@@ -160,29 +160,57 @@ let test_play_scenario _ =
   assert_equal 1 score ~msg:"Scenario did not return the correct score"
 
 (* SCRAMBLE TESTS *)
-let test_shuffle_word _ =
-  let word = "investigation" in
-  let shuffled = shuffle_word word in
-  assert_equal (String.length word) (String.length shuffled);
-  assert_equal
-    (List.sort Char.compare (List.init (String.length word) (String.get word)))
-    (List.sort Char.compare
-       (List.init (String.length shuffled) (String.get shuffled)))
 
-let test_get_scrambled_word _ =
-  let used_words = [ "arrest"; "justice" ] in
-  let scrambled, word = get_scrambled_word used_words in
-  assert_bool "Word should not be in used words"
-    (not (List.mem word used_words));
-  assert_equal
-    (List.sort Char.compare (List.init (String.length word) (String.get word)))
-    (List.sort Char.compare
-       (List.init (String.length scrambled) (String.get scrambled)))
-
-let test_play_game _ =
-  let input = "arrest\n" ^ "wrong_answer\n" ^ "patrol\n" in
+let test_play_game_all_correct _ =
+  (* Input corresponds to correct guesses for the fixed order words *)
+  let input = "arrest\njustice\npatrol\n" in
   let old_stdin = Unix.dup Unix.stdin in
   let pipe_read, pipe_write = Unix.pipe () in
+
+  Unix.write_substring pipe_write input 0 (String.length input) |> ignore;
+  Unix.close pipe_write;
+  Unix.dup2 pipe_read Unix.stdin;
+
+  let points =
+    try play_game ()
+    with exn ->
+      Unix.dup2 old_stdin Unix.stdin;
+      raise exn
+  in
+
+  Unix.dup2 old_stdin Unix.stdin;
+  Unix.close old_stdin;
+
+  assert_equal points 3
+
+let test_play_game_all_incorrect _ =
+  (* Input corresponds to incorrect guesses for all fixed order words *)
+  let input = "wrong1\nwrong2\nwrong3\n" in
+  let old_stdin = Unix.dup Unix.stdin in
+  let pipe_read, pipe_write = Unix.pipe () in
+
+  Unix.write_substring pipe_write input 0 (String.length input) |> ignore;
+  Unix.close pipe_write;
+  Unix.dup2 pipe_read Unix.stdin;
+
+  let points =
+    try play_game ()
+    with exn ->
+      Unix.dup2 old_stdin Unix.stdin;
+      raise exn
+  in
+
+  Unix.dup2 old_stdin Unix.stdin;
+  Unix.close old_stdin;
+
+  assert_equal points 0
+
+let test_play_game_mixed _ =
+  (* Input contains a mix of correct and incorrect guesses *)
+  let input = "arrest\nwrong_answer\npatrol\n" in
+  let old_stdin = Unix.dup Unix.stdin in
+  let pipe_read, pipe_write = Unix.pipe () in
+
   Unix.write_substring pipe_write input 0 (String.length input) |> ignore;
   Unix.close pipe_write;
   Unix.dup2 pipe_read Unix.stdin;
@@ -198,6 +226,40 @@ let test_play_game _ =
   Unix.close old_stdin;
 
   assert_equal points 2
+
+let test_get_word_fixed_order _ =
+  (* Ensure get_word always returns words in the fixed order *)
+  let used_words = [] in
+  let w1, _ = get_word used_words in
+  let w2, _ = get_word [ w1 ] in
+  let w3, _ = get_word [ w1; w2 ] in
+
+  assert_equal w1 "arrest";
+  assert_equal w2 "justice";
+  assert_equal w3 "patrol"
+
+let test_get_word_exhaustion _ =
+  (* Ensure an exception is raised after all words in the fixed order are
+     used *)
+  let used_words = [ "arrest"; "justice"; "patrol" ] in
+  assert_raises (Failure "No more words available") (fun () ->
+      get_word used_words)
+
+(* let test_play_game _ = let input = "arrest\n" ^ "wrong_answer\n" ^ "patrol\n"
+   in let old_stdin = Unix.dup Unix.stdin in let pipe_read, pipe_write =
+   Unix.pipe () in
+
+   Unix.write_substring pipe_write input 0 (String.length input) |> ignore;
+   Unix.close pipe_write;
+
+   Unix.dup2 pipe_read Unix.stdin;
+
+   let points = try play_game () with exn -> Unix.dup2 old_stdin Unix.stdin;
+   raise exn in
+
+   Unix.dup2 old_stdin Unix.stdin; Unix.close old_stdin;
+
+   assert_equal points 2 *)
 
 let test_handle_scenario_valid_choice _ =
   let scenario =
@@ -683,9 +745,12 @@ let tests =
          "test_scenario_structure" >:: test_scenario_structure;
          "test_check_correct_answer" >:: test_check_correct_answer;
          "test_check_incorrect_answer" >:: test_check_incorrect_answer;
-         "test_shuffle_word" >:: test_shuffle_word;
-         "test_get_scrambled_word" >:: test_get_scrambled_word;
-         (* "test_play_game" >:: test_play_game; *)
+         (* "test_shuffle_word" >:: test_shuffle_word; "test_get_scrambled_word"
+            >:: test_get_scrambled_word; "test_play_game" >:: test_play_game; *)
+         "test_play_game_all_correct" >:: test_play_game_all_correct;
+         "test_play_game_all_incorrect" >:: test_play_game_all_incorrect;
+         "test_play_game_mixed" >:: test_play_game_mixed;
+         "test_get_word_exhaustion" >:: test_get_word_exhaustion;
          "test_handle_scenario_valid_choice"
          >:: test_handle_scenario_valid_choice;
          "test_handle_scenario_invalid_choice"
@@ -694,8 +759,9 @@ let tests =
          >:: test_handle_scenario_valid_choice;
          "test_handle_scenario_with_mini_games"
          >:: test_handle_scenario_with_mini_games;
-         (* "test_play_game_all_correct" >:: test_play_game_all_correct; *)
-         (* "test_play_traffic_cop_no_input" >:: test_play_traffic_cop_no_input; *)
+         "test_play_game_all_correct" >:: test_play_game_all_correct;
+         (* "test_play_traffic_cop_no_input" >::
+            test_play_traffic_cop_no_input; *)
          (* "test_play_traffic_cop_invalid_input" >::
             test_play_traffic_cop_invalid_input; *)
          "test_play_sentiment_game" >:: test_play_sentiment_game;
