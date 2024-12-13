@@ -8,6 +8,7 @@ type game_state =
   | Welcome
   | RoleSelection
   | RoleSelected of string
+  | RoleComplete of (string * int) (* New state after finishing one role *)
   | FinalScreen of (string * int) list
 
 let window_width = 600
@@ -74,6 +75,23 @@ let display_role_selected selected_role =
   moveto text_x text_y;
   set_color black;
   draw_string message;
+  synchronize ()
+
+(* New function to display the role completion screen *)
+let display_role_complete (role, score) =
+  clear_graph ();
+  let message = Printf.sprintf "%s Game Over! Your Score: %d" role score in
+  let text_x = (window_width - (String.length message * 6)) / 2 in
+  let text_y = (window_height / 2) + 50 in
+  moveto text_x text_y;
+  set_color black;
+  draw_string message;
+
+  (* Button to return to role selection *)
+  let button_x = (window_width - button_width) / 2 in
+  let button_y = (window_height / 2) - 50 in
+  draw_button button_x button_y button_width button_height "Return to Selection";
+
   synchronize ()
 
 let display_final_screen completed_roles =
@@ -143,25 +161,44 @@ let rec game_loop state completed_roles =
           && event.mouse_y <= start_button_y + button_height
         then game_loop RoleSelection completed_roles
         else game_loop Welcome completed_roles
+      else game_loop Welcome completed_roles
   | RoleSelection ->
       display_role_selection ();
       let event = wait_next_event [ Button_down ] in
       if event.button then
         match handle_role_click event.mouse_x event.mouse_y with
         | Some selected_role ->
-            if List.exists (fun (r, _) -> r = selected_role) completed_roles
-            then game_loop RoleSelection completed_roles
-            else game_loop (RoleSelected selected_role) completed_roles
+            (* If role was already played, just ignore or allow replay *)
+            game_loop (RoleSelected selected_role) completed_roles
         | None -> game_loop RoleSelection completed_roles
       else game_loop RoleSelection completed_roles
   | RoleSelected selected_role ->
       display_role_selected selected_role;
       Unix.sleepf 2.0;
       let role, score = play_role_game selected_role in
-      let updated_roles = (role, score) :: completed_roles in
-      if List.length updated_roles = 4 then
-        game_loop (FinalScreen updated_roles) updated_roles
-      else game_loop RoleSelection updated_roles
+      (* After finishing the role, go to the RoleComplete state to show final
+         score *)
+      game_loop (RoleComplete (role, score)) ((role, score) :: completed_roles)
+  | RoleComplete (role, score) ->
+      display_role_complete (role, score);
+      let event = wait_next_event [ Button_down ] in
+      let button_x = (window_width - button_width) / 2 in
+      let button_y = (window_height / 2) - 50 in
+      if
+        event.button && event.mouse_x >= button_x
+        && event.mouse_x <= button_x + button_width
+        && event.mouse_y >= button_y
+        && event.mouse_y <= button_y + button_height
+      then
+        (* After the player sees their score for the finished role, return them
+           to the role selection screen. *)
+        let updated_roles = completed_roles in
+        (* If all four roles are done, show final screen, else back to
+           selection *)
+        if List.length updated_roles = 4 then
+          game_loop (FinalScreen updated_roles) updated_roles
+        else game_loop RoleSelection updated_roles
+      else game_loop (RoleComplete (role, score)) completed_roles
   | FinalScreen completed_roles ->
       display_final_screen completed_roles;
       let event =

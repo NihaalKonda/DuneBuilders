@@ -4,6 +4,9 @@ type game_state =
   | RoleSelection  (** The state where the user selects a role to play. *)
   | RoleSelected of string
       (** The state that displays the selected role before starting the game. *)
+  | RoleComplete of (string * int)
+      (** The state shown after a role finishes, displaying the role's score and
+          allowing the user to return to the role selection page. *)
   | FinalScreen of (string * int) list
       (** The state displaying the final scores for all completed roles. *)
 
@@ -29,6 +32,11 @@ val display_role_selection : unit -> unit
 val display_role_selected : string -> unit
 (** [display_role_selected selected_role] displays a message indicating the
     [selected_role] chosen by the player before starting the game. *)
+
+val display_role_complete : string * int -> unit
+(** [display_role_complete (role, score)] displays a "game over" screen for the
+    completed [role] and shows the [score] earned. Also provides a button to
+    return to the role selection screen. *)
 
 val display_final_screen : (string * int) list -> unit
 (** [display_final_screen completed_roles] displays the final scores for all
