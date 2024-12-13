@@ -4,6 +4,27 @@ open Scenariohandler
 let scenarios =
   [
     create_scenario
+      "You've recovered a crucial piece of evidence at a crime scene - a \
+       single fingerprint. The database search yields no matches. What's your \
+       next course of action?"
+      [
+        ( "Ignore the fingerprint as it doesn't lead to any immediate suspects.",
+          -1,
+          "Discarding valuable evidence hinders the investigation and \
+           potential apprehension of the perpetrator." );
+        ( "Expand the search parameters in the database and cross-reference \
+           with known associates of potential suspects.",
+          2,
+          "This proactive approach increases the chances of identifying a \
+           match and advancing the investigation." );
+        ( "Focus solely on other investigative avenues, as the fingerprint is \
+           likely a dead end.",
+          -1,
+          "Overlooking potential leads, even seemingly insignificant ones, can \
+           compromise a thorough investigation." );
+      ]
+      false false false false;
+    create_scenario
       "You arrive at the crime scene and notice several potential leads. What \
        do you do first?"
       [
@@ -21,6 +42,27 @@ let scenarios =
            overlooked." );
       ]
       false true false false;
+    create_scenario
+      "You're interrogating a suspect who is providing inconsistent and \
+       evasive answers. How do you proceed?"
+      [
+        ( "Immediately confront the suspect with the inconsistencies and \
+           accuse them of lying.",
+          -1,
+          "An accusatory approach can escalate the situation and make the \
+           suspect less cooperative." );
+        ( "Maintain a calm and non-confrontational demeanor, patiently probing \
+           for further details and clarifying inconsistencies.",
+          2,
+          "A patient and understanding approach can build rapport and \
+           encourage the suspect to provide more truthful information." );
+        ( "End the interrogation and focus on gathering evidence from other \
+           sources.",
+          1,
+          "While gathering evidence from other sources is crucial, prematurely \
+           abandoning an interrogation may miss vital information." );
+      ]
+      false false false false;
     create_scenario
       "A suspect is fleeing the crime scene. What is your immediate action?"
       [
@@ -69,6 +111,27 @@ let scenarios =
           "You risk missing an essential piece of evidence." );
       ]
       true false false false;
+    create_scenario
+      "You receive an anonymous tip regarding the location of a concealed \
+       weapon. How do you proceed"
+      [
+        ( "Disregard the tip as it's anonymous and potentially unreliable.",
+          -1,
+          "Dismissing credible leads, even anonymous ones, can hinder the \
+           investigation and potentially endanger public safety." );
+        ( "Immediately dispatch a team to investigate the location while \
+           discreetly attempting to verify the tip's source.",
+          2,
+          "This cautious approach balances the need for immediate action with \
+           the importance of verifying the information." );
+        ( "Publicly announce the tip to gather further information from the \
+           community.",
+          -1,
+          "Publicly disclosing sensitive information related to an ongoing \
+           investigation can compromise the operation and potentially alert \
+           the suspect." );
+      ]
+      false false false false;
     create_scenario
       "A financial record linked to the case appears encrypted. Solving the \
        puzzle could be key."

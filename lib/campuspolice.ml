@@ -26,6 +26,24 @@ let scenarios =
       ]
       false true false false;
     create_scenario
+      "You receive a report of a possible active shooter situation on campus. \
+       What is your immediate priority?"
+      [
+        ( "Secure the perimeter and evacuate students and staff from the area.",
+          2,
+          "Prioritizing the safety of individuals on campus is paramount in an \
+           active shooter situation." );
+        ( "Immediately apprehend the suspect.",
+          -1,
+          "Prioritizing immediate apprehension could put officers and \
+           civilians at unnecessary risk." );
+        ( "Gather information and assess the situation from a distance.",
+          -1,
+          "Hesitation in an active shooter situation can lead to increased \
+           casualties." );
+      ]
+      false false false false;
+    create_scenario
       "You witness a heated argument near the campus cafeteria escalating into \
        a fight."
       [
@@ -64,6 +82,25 @@ let scenarios =
           "Fails to address a serious safety concern." );
       ]
       false false false true;
+    create_scenario
+      "A student reports experiencing cyberbullying and harassment online. How \
+       do you approach this situation?"
+      [
+        ( "Dismiss the report as online harassment is not a physical threat.",
+          -1,
+          "Cyberbullying can have severe psychological and emotional impacts \
+           on victims." );
+        ( "Document the incident and offer support resources to the student.",
+          1,
+          "While documenting the incident is important, offering support \
+           resources is equally crucial." );
+        ( "Investigate the incident, gather evidence, and potentially pursue \
+           disciplinary action against the perpetrator.",
+          2,
+          "A comprehensive response includes both support for the victim and \
+           accountability for the perpetrator." );
+      ]
+      false false false false;
     create_scenario
       "A fire alarm goes off in a dorm building, and students are panicking. \
        What will you do?"
