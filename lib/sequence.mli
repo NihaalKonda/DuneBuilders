@@ -1,23 +1,14 @@
-(** The [Sequence] module provides functionality for generating and playing
-    sequence-based quiz games. *)
+(** A module for playing a sequence completion game. *)
+
+(** The type of a sequence and its correct answer. *)
+val sequences : (int list * int) list
+(** A list of predefined sequences, each paired with its correct answer. *)
 
 val shuffle : 'a list -> 'a list
-(** [shuffle lst] takes a list [lst] and returns a shuffled version of it. *)
-
-val generate_random_sequence : int -> int list
-(** [generate_random_sequence n] generates a random arithmetic sequence of
-    length [n]. The starting number and step size are randomized. *)
-
-val get_sequence_data : unit -> string * int * int list
-(** [get_sequence_data ()] prepares a random sequence question. It returns a
-    tuple [(sequence_str, correct_answer, answers)] where:
-    - [sequence_str] is the string representation of the sequence with the last
-      value replaced by a question mark.
-    - [correct_answer] is the hidden value that completes the sequence.
-    - [answers] is a shuffled list of possible answers, including the correct
-      one. *)
+(** [shuffle lst] returns a shuffled version of the list [lst]. *)
 
 val play_sequence_game : unit -> int
-(** [play_sequence_game ()] starts the sequence game, where the user is asked to
-    complete a random sequence. The user is presented with 3 questions and earns
-    points for each correct answer. *)
+(** [play_sequence_game ()] starts the sequence completion game. It asks the
+    player to complete predefined sequences by selecting the correct option from
+    the provided choices. Returns the total points scored by the player after
+    the game ends. *)
