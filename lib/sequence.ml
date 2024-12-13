@@ -46,6 +46,5 @@ let play_sequence_game () =
           with Failure _ ->
             printf "Invalid input. Please enter a valid number.\n";
             ask_question round points)
-    (* Retry question on invalid input *)
   in
   ask_question 1 0

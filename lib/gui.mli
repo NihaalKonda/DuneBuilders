@@ -1,9 +1,9 @@
-(** The type representing the various states of the game. *)
+(** [game_state]is the type that represents the various states of the game. *)
 type game_state =
   | Welcome  (** The initial state displaying the welcome message. *)
   | RoleSelection  (** The state where the user selects a role to play. *)
   | RoleSelected of string
-      (** The state that displays the selected role before starting the game. *)
+      (** The state that shows the selected role before starting the game. *)
   | RoleComplete of (string * int)
       (** The state shown after a role finishes, displaying the role's score and
           allowing the user to return to the role selection page. *)
@@ -11,8 +11,6 @@ type game_state =
       (** The state displaying the final scores for all completed roles. *)
 
 val window_width : int
-(** Constants defining the GUI dimensions and button sizes. *)
-
 val window_height : int
 val button_width : int
 val button_height : int
