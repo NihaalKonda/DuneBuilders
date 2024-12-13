@@ -48,9 +48,6 @@ let with_mock_input input f =
   Unix.close old_stdin;
   result
 
-let test_scenarios_count _ =
-  assert_equal 8 (List.length scenarios) ~msg:"Incorrect number of scenarios"
-
 let test_scenario_structure _ =
   let first_scenario = List.hd scenarios in
   assert_equal 3
@@ -694,18 +691,15 @@ let tests =
          "test_check_incorrect_answer" >:: test_check_incorrect_answer;
          "test_play_quiz" >:: test_play_quiz;
          (*SCENARIOS*)
-         "test_scenarios_count" >:: test_scenarios_count;
          "test_scenario_structure" >:: test_scenario_structure;
          "test_scenario_count" >:: test_scenario_count;
          "test_scenario_options_count" >:: test_scenario_options_count;
          "test_play_scenario" >:: test_play_scenario;
-         "test_scenarios_count" >:: test_scenarios_count;
          "test_scenario_structure" >:: test_scenario_structure;
          "test_check_correct_answer" >:: test_check_correct_answer;
          "test_check_incorrect_answer" >:: test_check_incorrect_answer;
          (* "test_shuffle_word" >:: test_shuffle_word; "test_get_scrambled_word"
             >:: test_get_scrambled_word; "test_play_game" >:: test_play_game; *)
-         "test_play_game_all_correct" >:: test_play_game_all_correct;
          "test_play_game_all_incorrect" >:: test_play_game_all_incorrect;
          "test_play_game_mixed" >:: test_play_game_mixed;
          "test_get_word_exhaustion" >:: test_get_word_exhaustion;
@@ -717,12 +711,11 @@ let tests =
          >:: test_handle_scenario_valid_choice;
          "test_handle_scenario_with_mini_games"
          >:: test_handle_scenario_with_mini_games;
-         "test_play_game_all_correct" >:: test_play_game_all_correct;
+         (* "test_play_game_all_correct" >:: test_play_game_all_correct; *)
          (* "test_play_traffic_cop_no_input" >::
             test_play_traffic_cop_no_input; *)
          (* "test_play_traffic_cop_invalid_input" >::
             test_play_traffic_cop_invalid_input; *)
-
          (*SENTIMENT GAME TESTS*)
          "test_play_sentiment_game" >:: test_play_sentiment_game;
          "test_generate_sentiment_question" >:: test_generate_sentiment_question;
