@@ -41,23 +41,26 @@ let display_welcome_message () =
 
 let display_role_selection () =
   clear_graph ();
-  let title_x = (window_width - (String.length "Choose Your Role:" * 6)) / 2 in
+  let title = "Choose Your Role:" in
+  let title_x = (window_width - (String.length title * 6)) / 2 in
   let title_y = window_height - 100 in
   moveto title_x title_y;
   set_color black;
-  draw_string "Choose Your Role:";
+  draw_string title;
+
   let roles =
     [ "Campus Police"; "Criminal Investigator"; "Traffic Cop"; "Border Patrol" ]
   in
+  let total_height =
+    (List.length roles * button_height) + ((List.length roles - 1) * 20)
+  in
+  let start_y = (window_height - total_height) / 2 in
+
   List.iteri
     (fun i role ->
-      let spacing = 70 in
-      let y =
-        (window_height / 2) + (spacing * (List.length roles / 2)) - (i * spacing)
-      in
-      draw_button
-        ((window_width - button_width) / 2)
-        y button_width button_height role)
+      let button_x = (window_width - button_width) / 2 in
+      let button_y = start_y + (i * (button_height + 20)) in
+      draw_button button_x button_y button_width button_height role)
     roles;
   synchronize ()
 
@@ -97,11 +100,15 @@ let handle_role_click x y =
   let roles =
     [ "Campus Police"; "Criminal Investigator"; "Traffic Cop"; "Border Patrol" ]
   in
-  let start_y = (window_height / 2) + (70 * (List.length roles / 2)) in
+  let total_height =
+    (List.length roles * button_height) + ((List.length roles - 1) * 20)
+  in
+  let start_y = (window_height - total_height) / 2 in
+
   List.mapi
     (fun i role ->
       let button_x = (window_width - button_width) / 2 in
-      let button_y = start_y - (i * 70) in
+      let button_y = start_y + (i * (button_height + 20)) in
       (role, button_x, button_y))
     roles
   |> List.find_opt (fun (_, bx, by) ->
