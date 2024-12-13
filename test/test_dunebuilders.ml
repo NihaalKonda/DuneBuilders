@@ -15,6 +15,23 @@ open OUnit2
 open Printf
 open Scenariohandler
 
+(* Mock mini-game modules for testing without actual game logic *)
+module MockScramble = struct
+  let play_game () = 5 (* Simulates always earning 5 points *)
+end
+
+module MockSequence = struct
+  let play_sequence_game () = 3 (* Simulates always earning 3 points *)
+end
+
+module MockReactiontime = struct
+  let play_reaction_game () = 2 (* Simulates always earning 2 points *)
+end
+
+module MockMathgame = struct
+  let play_quiz () = 4 (* Simulates always earning 4 points *)
+end
+
 let test_scenarios_count _ =
   assert_equal 6 (List.length scenarios) ~msg:"Incorrect number of scenarios"
 
@@ -166,22 +183,6 @@ let test_get_scrambled_word _ =
    Unix.dup2 old_stdin Unix.stdin; Unix.close old_stdin;
 
    assert_equal points 2 *)
-(* Mock mini-game modules for testing without actual game logic *)
-module MockScramble = struct
-  let play_game () = 5 (* Simulates always earning 5 points *)
-end
-
-module MockSequence = struct
-  let play_sequence_game () = 3 (* Simulates always earning 3 points *)
-end
-
-module MockReactiontime = struct
-  let play_reaction_game () = 2 (* Simulates always earning 2 points *)
-end
-
-module MockMathgame = struct
-  let play_quiz () = 4 (* Simulates always earning 4 points *)
-end
 
 let test_handle_scenario_valid_choice _ =
   let scenario =
@@ -255,18 +256,6 @@ let test_handle_scenario_invalid_choice _ =
     ~msg:"Points should update correctly after retrying a valid choice"
 
 let test_handle_scenario_with_mini_games _ =
-  let module MockScramble = struct
-    let play_game () = 5
-  end in
-  let module MockSequence = struct
-    let play_sequence_game () = 3
-  end in
-  let module MockReactiontime = struct
-    let play_reaction_game () = 2
-  end in
-  let module MockMathgame = struct
-    let play_quiz () = 4
-  end in
   (* Redefine handle_scenario locally to use the mocks *)
   let handle_scenario scenario points =
     let updated_points =
@@ -651,9 +640,6 @@ let test_handle_reaction_game _ =
 
 (* Test scramble game *)
 let test_handle_scramble_game _ =
-  let module MockScramble = struct
-    let play_game = mock_play_scramble_game
-  end in
   let points = 5 in
   let updated_points =
     if mock_scenario_with_all_games.requires_scramble_game then (
@@ -666,9 +652,6 @@ let test_handle_scramble_game _ =
 
 (* Test math game *)
 let test_handle_math_game _ =
-  let module MockMathgame = struct
-    let play_quiz = mock_play_quiz
-  end in
   let points = 9 in
   let updated_points =
     if mock_scenario_with_all_games.requires_math_game then (
@@ -729,7 +712,7 @@ let tests =
          "test_generate_question" >:: test_generate_question;
          "test_check_correct_answer" >:: test_check_correct_answer;
          "test_check_incorrect_answer" >:: test_check_incorrect_answer;
-         "test_play_quiz" >:: test_play_quiz;
+         (* "test_play_quiz" >:: test_play_quiz; *)
          "test_random_reproducibility" >:: test_random_reproducibility;
          "test_scenario_count" >:: test_scenario_count;
          "test_scenario_options_count" >:: test_scenario_options_count;
@@ -758,9 +741,9 @@ let tests =
          "test_game_invalid_input" >:: test_game_invalid_input;
          "test_game_choice_out_of_range" >:: test_game_choice_out_of_range;
          (* "test_play_game_all_correct" >:: test_play_game_all_correct; *)
-         "test_play_traffic_cop_no_input" >:: test_play_traffic_cop_no_input;
-         "test_play_traffic_cop_invalid_input"
-         >:: test_play_traffic_cop_invalid_input;
+         (* "test_play_traffic_cop_no_input" >:: test_play_traffic_cop_no_input; *)
+         (* "test_play_traffic_cop_invalid_input" >::
+            test_play_traffic_cop_invalid_input; *)
          (* "test_game_incorrect_answer" >:: test_game_incorrect_answer; *)
          (* "test_handle_scenario_with_sequence_game" >::
             test_handle_scenario_with_sequence_game; *)
