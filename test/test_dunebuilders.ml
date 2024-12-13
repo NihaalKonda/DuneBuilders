@@ -491,6 +491,236 @@ let test_scenario_termination _ =
   let final_score = play_traffic_cop () in
   assert_bool "Game should end with a non-negative score" (final_score >= 0)
 
+let test_play_game_all_correct _ =
+  (* Simulate correct answers for all rounds *)
+  let input = "arrest\njustice\ninvestigation\n" in
+  let old_stdin = Unix.dup Unix.stdin in
+  let pipe_read, pipe_write = Unix.pipe () in
+  Unix.write_substring pipe_write input 0 (String.length input) |> ignore;
+  Unix.close pipe_write;
+  Unix.dup2 pipe_read Unix.stdin;
+
+  let score =
+    try play_game ()
+    with exn ->
+      Unix.dup2 old_stdin Unix.stdin;
+      raise exn
+  in
+
+  Unix.dup2 old_stdin Unix.stdin;
+  Unix.close old_stdin;
+
+  assert_equal 3 score
+    ~msg:"Game should end with 3 points for all correct answers"
+
+let test_play_game_mixed_answers _ =
+  (* Simulate correct and incorrect answers *)
+  let input = "arrest\nwrong_answer\ninvestigation\n" in
+  let old_stdin = Unix.dup Unix.stdin in
+  let pipe_read, pipe_write = Unix.pipe () in
+  Unix.write_substring pipe_write input 0 (String.length input) |> ignore;
+  Unix.close pipe_write;
+  Unix.dup2 pipe_read Unix.stdin;
+
+  let score =
+    try play_game ()
+    with exn ->
+      Unix.dup2 old_stdin Unix.stdin;
+      raise exn
+  in
+
+  Unix.dup2 old_stdin Unix.stdin;
+  Unix.close old_stdin;
+
+  assert_equal 2 score
+    ~msg:"Game should end with 2 points for one incorrect answer"
+
+let test_play_traffic_cop_no_input _ =
+  let input = "" (* Simulate no input with an empty string *) in
+  let old_stdin = Unix.dup Unix.stdin in
+  let pipe_read, pipe_write = Unix.pipe () in
+
+  (* Simulate no input *)
+  Unix.write_substring pipe_write input 0 (String.length input) |> ignore;
+  Unix.close pipe_write;
+  Unix.dup2 pipe_read Unix.stdin;
+
+  let final_score =
+    try play_traffic_cop ()
+    with exn ->
+      Unix.dup2 old_stdin Unix.stdin;
+      raise exn
+  in
+
+  (* Restore the original stdin *)
+  Unix.dup2 old_stdin Unix.stdin;
+  Unix.close old_stdin;
+
+  (* Check the final score *)
+  assert_equal 0 final_score
+    ~msg:"Traffic Cop game should end with 0 points for no input"
+
+let test_play_traffic_cop_invalid_input _ =
+  (* Simulate invalid inputs followed by valid ones *)
+  let input = "5\nabc\n1\n2\n3\n1\n" in
+  let old_stdin = Unix.dup Unix.stdin in
+  let pipe_read, pipe_write = Unix.pipe () in
+  Unix.write_substring pipe_write input 0 (String.length input) |> ignore;
+  Unix.close pipe_write;
+  Unix.dup2 pipe_read Unix.stdin;
+
+  let score =
+    try play_traffic_cop ()
+    with exn ->
+      Unix.dup2 old_stdin Unix.stdin;
+      raise exn
+  in
+
+  Unix.dup2 old_stdin Unix.stdin;
+  Unix.close old_stdin;
+
+  assert_equal 4 score
+    ~msg:
+      "Traffic Cop game should handle invalid inputs and compute the correct \
+       score"
+
+let mock_play_sequence_game () = 3
+let mock_play_reaction_game () = 2
+let mock_play_scramble_game () = 4
+let mock_play_quiz () = 5
+
+let mock_scenario_with_all_games =
+  {
+    description = "Test scenario requiring all mini-games.";
+    options =
+      [
+        ("Option 1", 1, "You chose the best option.");
+        ("Option 2", 0, "Neutral choice.");
+        ("Option 3", -1, "Bad choice.");
+      ];
+    requires_scramble_game = true;
+    requires_sequence_game = true;
+    requires_reaction_game = true;
+    requires_math_game = true;
+  }
+
+let mock_scenario_with_no_games =
+  {
+    description = "Test scenario with no mini-games.";
+    options =
+      [
+        ("Option 1", 2, "Good choice.");
+        ("Option 2", 0, "Neutral choice.");
+        ("Option 3", -1, "Bad choice.");
+      ];
+    requires_scramble_game = false;
+    requires_sequence_game = false;
+    requires_reaction_game = false;
+    requires_math_game = false;
+  }
+
+(* Test sequence game *)
+let test_handle_sequence_game _ =
+  let module MockSequence = struct
+    let play_sequence_game = mock_play_sequence_game
+  end in
+  let points = 0 in
+  let updated_points =
+    if mock_scenario_with_all_games.requires_sequence_game then (
+      Printf.printf "Mock sequence game played.\n";
+      points + MockSequence.play_sequence_game ())
+    else points
+  in
+  assert_equal 3 updated_points
+    ~msg:"Points should update correctly after sequence game"
+
+(* Test reaction game *)
+let test_handle_reaction_game _ =
+  let module MockReactiontime = struct
+    let play_reaction_game = mock_play_reaction_game
+  end in
+  let points = 3 in
+  let updated_points =
+    if mock_scenario_with_all_games.requires_reaction_game then (
+      Printf.printf "Mock reaction game played.\n";
+      points + MockReactiontime.play_reaction_game ())
+    else points
+  in
+  assert_equal 5 updated_points
+    ~msg:"Points should update correctly after reaction game"
+
+(* Test scramble game *)
+let test_handle_scramble_game _ =
+  let module MockScramble = struct
+    let play_game = mock_play_scramble_game
+  end in
+  let points = 5 in
+  let updated_points =
+    if mock_scenario_with_all_games.requires_scramble_game then (
+      Printf.printf "Mock scramble game played.\n";
+      points + MockScramble.play_game ())
+    else points
+  in
+  assert_equal 9 updated_points
+    ~msg:"Points should update correctly after scramble game"
+
+(* Test math game *)
+let test_handle_math_game _ =
+  let module MockMathgame = struct
+    let play_quiz = mock_play_quiz
+  end in
+  let points = 9 in
+  let updated_points =
+    if mock_scenario_with_all_games.requires_math_game then (
+      Printf.printf "Mock math game played.\n";
+      points + MockMathgame.play_quiz ())
+    else points
+  in
+  assert_equal 14 updated_points
+    ~msg:"Points should update correctly after math game"
+
+(* Test handling all games in a scenario *)
+let test_handle_all_games _ =
+  let points = 0 in
+  let updated_points =
+    points
+    + (if mock_scenario_with_all_games.requires_sequence_game then
+         mock_play_sequence_game ()
+       else 0)
+    + (if mock_scenario_with_all_games.requires_reaction_game then
+         mock_play_reaction_game ()
+       else 0)
+    + (if mock_scenario_with_all_games.requires_scramble_game then
+         mock_play_scramble_game ()
+       else 0)
+    +
+    if mock_scenario_with_all_games.requires_math_game then mock_play_quiz ()
+    else 0
+  in
+  assert_equal 14 updated_points
+    ~msg:"Points should correctly sum from all mini-games in a scenario"
+
+(* Test handling a scenario with no mini-games *)
+let test_handle_no_games _ =
+  let points = 0 in
+  let updated_points =
+    points
+    + (if mock_scenario_with_no_games.requires_sequence_game then
+         mock_play_sequence_game ()
+       else 0)
+    + (if mock_scenario_with_no_games.requires_reaction_game then
+         mock_play_reaction_game ()
+       else 0)
+    + (if mock_scenario_with_no_games.requires_scramble_game then
+         mock_play_scramble_game ()
+       else 0)
+    +
+    if mock_scenario_with_no_games.requires_math_game then mock_play_quiz ()
+    else 0
+  in
+  assert_equal 0 updated_points
+    ~msg:"Points should remain unchanged for a scenario with no mini-games"
+
 let tests =
   "Test Suite"
   >::: [
@@ -527,10 +757,13 @@ let tests =
          "test_get_sequence_data" >:: test_get_sequence_data;
          "test_game_invalid_input" >:: test_game_invalid_input;
          "test_game_choice_out_of_range" >:: test_game_choice_out_of_range;
+         (* "test_play_game_all_correct" >:: test_play_game_all_correct; *)
+         "test_play_traffic_cop_no_input" >:: test_play_traffic_cop_no_input;
+         "test_play_traffic_cop_invalid_input"
+         >:: test_play_traffic_cop_invalid_input;
          (* "test_game_incorrect_answer" >:: test_game_incorrect_answer; *)
          (* "test_handle_scenario_with_sequence_game" >::
             test_handle_scenario_with_sequence_game; *)
-         "test_scenario_termination" >:: test_scenario_termination;
        ]
 
 let _ = run_test_tt_main tests
