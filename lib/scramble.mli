@@ -1,12 +1,20 @@
+(* scramble.mli *)
+
+val scramble_word : string -> string
+(** Scrambles the letters in a given word.
+    @param word The word to scramble.
+    @return A scrambled version of the word. *)
+
 val get_word : string list -> string * string
-(** [get_word used_words] selects a word from the available list that has not
-    yet been used.
-    @param used_words A list of words that have already been used in the game.
+(** Retrieves a word for the game that has not yet been used, along with its
+    scrambled version.
+    @param used_words A list of words that have already been used.
     @return
-      A tuple [(scrambled_word, original_word)] where both elements are the same
-      since no scrambling is performed. *)
+      A tuple [(scrambled_word, original_word)] where [scrambled_word] is the
+      scrambled version of the word to display, and [original_word] is the
+      actual word. *)
 
 val play_game : unit -> int
-(** [play_game ()] starts the word guessing game. The player has a limited
-    number of rounds to guess the words correctly.
+(** Starts the word guessing game. The player has a limited number of rounds to
+    guess the scrambled words correctly.
     @return The total score achieved by the player at the end of the game. *)

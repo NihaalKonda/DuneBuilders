@@ -1,5 +1,14 @@
 open Printf
 
+(* Scrambles the letters in a word *)
+let scramble_word word =
+  let chars = List.init (String.length word) (String.get word) in
+  let shuffled_chars =
+    List.map snd
+      (List.sort compare (List.map (fun c -> (Random.bits (), c)) chars))
+  in
+  String.concat "" (List.map (String.make 1) shuffled_chars)
+
 let get_word used_words =
   let fixed_order = [ "arrest"; "justice"; "patrol" ] in
   let remaining_words =
@@ -7,9 +16,11 @@ let get_word used_words =
   in
   match remaining_words with
   | [] -> failwith "No more words available"
-  | word :: _ -> (word, word)
+  | word :: _ -> (scramble_word word, word)
 
 let play_game () =
+  Random.self_init ();
+  (* Ensure randomness for shuffling *)
   let rec aux remaining_rounds points used_words =
     if remaining_rounds = 0 then (
       printf "\nGame over! You scored %d points.\n" points;
