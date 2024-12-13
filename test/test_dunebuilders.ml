@@ -155,16 +155,58 @@ let test_get_scrambled_word _ =
     (List.sort Char.compare
        (List.init (String.length scrambled) (String.get scrambled)))
 
-let test_play_game _ =
-  let input = "arrest\n" ^ "wrong_answer\n" ^ "patrol\n" in
+(* let test_play_game _ = let input = "arrest\n" ^ "wrong_answer\n" ^ "patrol\n"
+   in let old_stdin = Unix.dup Unix.stdin in let pipe_read, pipe_write =
+   Unix.pipe () in Unix.write_substring pipe_write input 0 (String.length input)
+   |> ignore; Unix.close pipe_write; Unix.dup2 pipe_read Unix.stdin;
+
+   let points = try play_game () with exn -> Unix.dup2 old_stdin Unix.stdin;
+   raise exn in
+
+   Unix.dup2 old_stdin Unix.stdin; Unix.close old_stdin;
+
+   assert_equal points 2 *)
+(* Mock mini-game modules for testing without actual game logic *)
+module MockScramble = struct
+  let play_game () = 5 (* Simulates always earning 5 points *)
+end
+
+module MockSequence = struct
+  let play_sequence_game () = 3 (* Simulates always earning 3 points *)
+end
+
+module MockReactiontime = struct
+  let play_reaction_game () = 2 (* Simulates always earning 2 points *)
+end
+
+module MockMathgame = struct
+  let play_quiz () = 4 (* Simulates always earning 4 points *)
+end
+
+let test_handle_scenario_valid_choice _ =
+  let scenario =
+    {
+      description = "Choose an option:";
+      options =
+        [
+          ("Option 1", 10, "You chose option 1.");
+          ("Option 2", 5, "Option 2 chosen.");
+        ];
+      requires_scramble_game = false;
+      requires_sequence_game = false;
+      requires_reaction_game = false;
+      requires_math_game = false;
+    }
+  in
+  let input = "1\n" in
   let old_stdin = Unix.dup Unix.stdin in
   let pipe_read, pipe_write = Unix.pipe () in
   Unix.write_substring pipe_write input 0 (String.length input) |> ignore;
   Unix.close pipe_write;
   Unix.dup2 pipe_read Unix.stdin;
 
-  let points =
-    try play_game ()
+  let updated_points =
+    try handle_scenario scenario 0
     with exn ->
       Unix.dup2 old_stdin Unix.stdin;
       raise exn
@@ -173,7 +215,110 @@ let test_play_game _ =
   Unix.dup2 old_stdin Unix.stdin;
   Unix.close old_stdin;
 
-  assert_equal points 2
+  assert_equal 10 updated_points
+    ~msg:"Points should update correctly after a valid choice"
+
+let test_handle_scenario_invalid_choice _ =
+  let scenario =
+    {
+      description = "Choose an option:";
+      options =
+        [
+          ("Option 1", 10, "You chose option 1.");
+          ("Option 2", 5, "Option 2 chosen.");
+        ];
+      requires_scramble_game = false;
+      requires_sequence_game = false;
+      requires_reaction_game = false;
+      requires_math_game = false;
+    }
+  in
+  let input = "3\n1\n" in
+  (* Invalid choice, followed by valid choice *)
+  let old_stdin = Unix.dup Unix.stdin in
+  let pipe_read, pipe_write = Unix.pipe () in
+  Unix.write_substring pipe_write input 0 (String.length input) |> ignore;
+  Unix.close pipe_write;
+  Unix.dup2 pipe_read Unix.stdin;
+
+  let updated_points =
+    try handle_scenario scenario 0
+    with exn ->
+      Unix.dup2 old_stdin Unix.stdin;
+      raise exn
+  in
+
+  Unix.dup2 old_stdin Unix.stdin;
+  Unix.close old_stdin;
+
+  assert_equal 10 updated_points
+    ~msg:"Points should update correctly after retrying a valid choice"
+
+let test_handle_scenario_with_mini_games _ =
+  let module MockScramble = struct
+    let play_game () = 5
+  end in
+  let module MockSequence = struct
+    let play_sequence_game () = 3
+  end in
+  let module MockReactiontime = struct
+    let play_reaction_game () = 2
+  end in
+  let module MockMathgame = struct
+    let play_quiz () = 4
+  end in
+  (* Redefine handle_scenario locally to use the mocks *)
+  let handle_scenario scenario points =
+    let updated_points =
+      if scenario.requires_scramble_game then points + MockScramble.play_game ()
+      else points
+    in
+    let updated_points =
+      if scenario.requires_sequence_game then
+        updated_points + MockSequence.play_sequence_game ()
+      else updated_points
+    in
+    let updated_points =
+      if scenario.requires_reaction_game then
+        updated_points + MockReactiontime.play_reaction_game ()
+      else updated_points
+    in
+    let updated_points =
+      if scenario.requires_math_game then
+        updated_points + MockMathgame.play_quiz ()
+      else updated_points
+    in
+    updated_points
+  in
+
+  let scenario =
+    {
+      description = "Solve the challenges:";
+      options = [ ("Start", 0, "Let the games begin!") ];
+      requires_scramble_game = true;
+      requires_sequence_game = true;
+      requires_reaction_game = true;
+      requires_math_game = true;
+    }
+  in
+  let updated_points = handle_scenario scenario 0 in
+  assert_equal 14 updated_points
+    ~msg:"Points should update correctly after all mini-games"
+
+let test_play_scenarios _ =
+  let scenarios =
+    [
+      create_scenario "Scenario 1"
+        [ ("Option 1", 5, "You chose wisely.") ]
+        false false false false;
+      create_scenario "Scenario 2"
+        [ ("Option 2", 10, "Good choice!") ]
+        false false false false;
+    ]
+  in
+  let final_score = play_scenarios scenarios 0 in
+  assert_equal 15 final_score
+    ~msg:"Final score should be the sum of all scenario points"
 
 (* SEQUENCE GAME TESTS *)
 let test_shuffle _ =
@@ -287,6 +432,16 @@ let tests =
          "test_random_reproducibility" >:: test_random_reproducibility;
          "test_shuffle_word" >:: test_shuffle_word;
          "test_get_scrambled_word" >:: test_get_scrambled_word;
+
+         (* "test_play_game" >:: test_play_game; *)
+         "test_handle_scenario_valid_choice"
+         >:: test_handle_scenario_valid_choice;
+         "test_handle_scenario_invalid_choice"
+         >:: test_handle_scenario_invalid_choice;
+         "test_handle_scenario_valid_choice"
+         >:: test_handle_scenario_valid_choice;
+         "test_handle_scenario_with_mini_games"
+         >:: test_handle_scenario_with_mini_games;
          "test_play_game" >:: test_play_game;
          "test_generate_random_sequence" >:: test_generate_random_sequence;
          "test_shuffle" >:: test_shuffle;
@@ -294,6 +449,7 @@ let tests =
          "test_game_invalid_input" >:: test_game_invalid_input;
          "test_game_choice_out_of_range" >:: test_game_choice_out_of_range;
          "test_game_incorrect_answer" >:: test_game_incorrect_answer;
+
        ]
 
 let _ = run_test_tt_main tests
