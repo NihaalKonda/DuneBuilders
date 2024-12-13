@@ -1,6 +1,7 @@
 Authors: Nihaal Konda (nak79), Tanvi Mavani (tm669), Aly Nathoo (an546), Sanya Mahajan (sm2588)
 
 Collaborators:
+
 - All group members worked together to ideate and implement our project. Within the larger project, we assigned smaller roles to each member for efficiency. 
 - Nihaal worked on the campus police role and scramble game. 
 - Tanvi worked on the criminal investigator role and math game.
