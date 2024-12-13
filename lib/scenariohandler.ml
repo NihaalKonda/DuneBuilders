@@ -1,7 +1,7 @@
 open Printf
 open Scramble
 open Sequence
-open Reactiontime
+open Sentiment
 open Mathgame
 
 type scenario = {
@@ -9,19 +9,19 @@ type scenario = {
   options : (string * int * string) list;
   requires_scramble_game : bool;
   requires_sequence_game : bool;
-  requires_reaction_game : bool;
+  requires_sentiment_game : bool;
   requires_math_game : bool;
 }
 
 let get_scenario_options scenario = scenario.options
 
-let create_scenario desc opts scramble sequence reaction math =
+let create_scenario desc opts scramble sequence sentiment math =
   {
     description = desc;
     options = opts;
     requires_scramble_game = scramble;
     requires_sequence_game = sequence;
-    requires_reaction_game = reaction;
+    requires_sentiment_game = sentiment;
     requires_math_game = math;
   }
 
@@ -67,9 +67,9 @@ let rec handle_scenario scenario points =
         else updated_points
       in
       let updated_points =
-        if scenario.requires_reaction_game then (
-          printf "\nYou need quick reflexes! Let's test your reaction time.\n";
-          updated_points + Reactiontime.play_reaction_game ())
+        if scenario.requires_sentiment_game then (
+          printf "\nLets test your sentiment analysis.\n";
+          updated_points + Sentiment.play_sentiment_game ())
         else updated_points
       in
       let updated_points =

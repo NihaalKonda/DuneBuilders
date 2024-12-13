@@ -5,7 +5,7 @@ open Campuspolice
 open Criminalinvestigator
 open Gui
 open Mathgame
-open Reactiontime
+open Sentiment
 open Role
 open Scenariohandler
 open Scramble
@@ -24,13 +24,29 @@ module MockSequence = struct
   let play_sequence_game () = 3 (* Simulates always earning 3 points *)
 end
 
-module MockReactiontime = struct
-  let play_reaction_game () = 2 (* Simulates always earning 2 points *)
+module MockSentiment = struct
+  let play_sentiment_game () = 2 (* Simulates always earning 2 points *)
 end
 
 module MockMathgame = struct
   let play_quiz () = 4 (* Simulates always earning 4 points *)
 end
+
+let with_mock_input input f =
+  let old_stdin = Unix.dup Unix.stdin in
+  let pipe_read, pipe_write = Unix.pipe () in
+  Unix.write_substring pipe_write input 0 (String.length input) |> ignore;
+  Unix.close pipe_write;
+  Unix.dup2 pipe_read Unix.stdin;
+  let result =
+    try f ()
+    with exn ->
+      Unix.dup2 old_stdin Unix.stdin;
+      raise exn
+  in
+  Unix.dup2 old_stdin Unix.stdin;
+  Unix.close old_stdin;
+  result
 
 let test_scenarios_count _ =
   assert_equal 6 (List.length scenarios) ~msg:"Incorrect number of scenarios"
@@ -195,7 +211,7 @@ let test_handle_scenario_valid_choice _ =
         ];
       requires_scramble_game = false;
       requires_sequence_game = false;
-      requires_reaction_game = false;
+      requires_sentiment_game = false;
       requires_math_game = false;
     }
   in
@@ -230,7 +246,7 @@ let test_handle_scenario_invalid_choice _ =
         ];
       requires_scramble_game = false;
       requires_sequence_game = false;
-      requires_reaction_game = false;
+      requires_sentiment_game = false;
       requires_math_game = false;
     }
   in
@@ -268,8 +284,8 @@ let test_handle_scenario_with_mini_games _ =
       else updated_points
     in
     let updated_points =
-      if scenario.requires_reaction_game then
-        updated_points + MockReactiontime.play_reaction_game ()
+      if scenario.requires_sentiment_game then
+        updated_points + MockSentiment.play_sentiment_game ()
       else updated_points
     in
     let updated_points =
@@ -286,7 +302,7 @@ let test_handle_scenario_with_mini_games _ =
       options = [ ("Start", 0, "Let the games begin!") ];
       requires_scramble_game = true;
       requires_sequence_game = true;
-      requires_reaction_game = true;
+      requires_sentiment_game = true;
       requires_math_game = true;
     }
   in
@@ -446,7 +462,7 @@ let test_handle_scenario_with_sequence_game _ =
       requires_scramble_game = false;
       requires_sequence_game = true;
       (* Trigger sequence game *)
-      requires_reaction_game = false;
+      requires_sentiment_game = false;
       requires_math_game = false;
     }
   in
@@ -574,7 +590,7 @@ let test_play_traffic_cop_invalid_input _ =
        score"
 
 let mock_play_sequence_game () = 3
-let mock_play_reaction_game () = 2
+let mock_play_sentiment_game () = 2
 let mock_play_scramble_game () = 4
 let mock_play_quiz () = 5
 
@@ -589,7 +605,7 @@ let mock_scenario_with_all_games =
       ];
     requires_scramble_game = true;
     requires_sequence_game = true;
-    requires_reaction_game = true;
+    requires_sentiment_game = true;
     requires_math_game = true;
   }
 
@@ -604,7 +620,7 @@ let mock_scenario_with_no_games =
       ];
     requires_scramble_game = false;
     requires_sequence_game = false;
-    requires_reaction_game = false;
+    requires_sentiment_game = false;
     requires_math_game = false;
   }
 
@@ -622,21 +638,6 @@ let test_handle_sequence_game _ =
   in
   assert_equal 3 updated_points
     ~msg:"Points should update correctly after sequence game"
-
-(* Test reaction game *)
-let test_handle_reaction_game _ =
-  let module MockReactiontime = struct
-    let play_reaction_game = mock_play_reaction_game
-  end in
-  let points = 3 in
-  let updated_points =
-    if mock_scenario_with_all_games.requires_reaction_game then (
-      Printf.printf "Mock reaction game played.\n";
-      points + MockReactiontime.play_reaction_game ())
-    else points
-  in
-  assert_equal 5 updated_points
-    ~msg:"Points should update correctly after reaction game"
 
 (* Test scramble game *)
 let test_handle_scramble_game _ =
@@ -670,8 +671,8 @@ let test_handle_all_games _ =
     + (if mock_scenario_with_all_games.requires_sequence_game then
          mock_play_sequence_game ()
        else 0)
-    + (if mock_scenario_with_all_games.requires_reaction_game then
-         mock_play_reaction_game ()
+    + (if mock_scenario_with_all_games.requires_sentiment_game then
+         mock_play_sentiment_game ()
        else 0)
     + (if mock_scenario_with_all_games.requires_scramble_game then
          mock_play_scramble_game ()
@@ -691,8 +692,8 @@ let test_handle_no_games _ =
     + (if mock_scenario_with_no_games.requires_sequence_game then
          mock_play_sequence_game ()
        else 0)
-    + (if mock_scenario_with_no_games.requires_reaction_game then
-         mock_play_reaction_game ()
+    + (if mock_scenario_with_no_games.requires_sentiment_game then
+         mock_play_sentiment_game ()
        else 0)
     + (if mock_scenario_with_no_games.requires_scramble_game then
          mock_play_scramble_game ()
@@ -703,6 +704,20 @@ let test_handle_no_games _ =
   in
   assert_equal 0 updated_points
     ~msg:"Points should remain unchanged for a scenario with no mini-games"
+(* Test Sentiment Detection Game *)
+
+let test_generate_sentiment_question _ =
+  let sentence, category = generate_sentiment_question () in
+  assert_bool "Generated sentence should not be empty"
+    (String.length sentence > 0);
+  assert_bool "Category should not be empty" (String.length category > 0);
+  assert_bool "Category should be one of the predefined options"
+    (List.mem category [ "urgent"; "calm"; "threat"; "resolved" ])
+
+let test_play_sentiment_game _ =
+  let input = "calm\nthreat\nurgent\nresolved\ncalm\n" in
+  let points = with_mock_input input (fun () -> play_sentiment_game ()) in
+  assert_bool "Points should be a non-negative integer" (points >= 0)
 
 let tests =
   "Test Suite"
@@ -747,6 +762,8 @@ let tests =
          (* "test_game_incorrect_answer" >:: test_game_incorrect_answer; *)
          (* "test_handle_scenario_with_sequence_game" >::
             test_handle_scenario_with_sequence_game; *)
+         "test_play_sentiment_game" >:: test_play_sentiment_game;
+         "test_generate_sentiment_question" >:: test_generate_sentiment_question;
        ]
 
 let _ = run_test_tt_main tests
