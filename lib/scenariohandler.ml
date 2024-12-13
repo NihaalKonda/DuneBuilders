@@ -62,7 +62,10 @@ let rec handle_scenario scenario points =
       (* Mini-games contribution *)
       let updated_points =
         if scenario.requires_sequence_game then (
-          printf "\nTime to test your problem-solving skills!\n";
+          printf
+            "\n\
+             Time to test your problem-solving skills! The game terminates \
+             once you get a question wrong.\n";
           updated_points + Sequence.play_sequence_game ())
         else updated_points
       in

@@ -597,7 +597,6 @@ let test_handle_all_games _ =
   assert_equal 14 updated_points
     ~msg:"Points should correctly sum from all mini-games in a scenario"
 
-(* Test handling a scenario with no mini-games *)
 let test_handle_no_games _ =
   let points = 0 in
   let updated_points =
@@ -617,7 +616,6 @@ let test_handle_no_games _ =
   in
   assert_equal 0 updated_points
     ~msg:"Points should remain unchanged for a scenario with no mini-games"
-(* Test Sentiment Detection Game *)
 
 let test_generate_sentiment_question _ =
   let sentence, category = generate_sentiment_question () in
@@ -631,8 +629,6 @@ let test_play_sentiment_game _ =
   let input = "calm\nthreat\nurgent\nresolved\ncalm\n" in
   let points = with_mock_input input (fun () -> play_sentiment_game ()) in
   assert_bool "Points should be a non-negative integer" (points >= 0)
-
-(* Test play_sequence_game logic without simulating input *)
 
 (**Sequence Game*)
 let index_of lst value =
@@ -653,14 +649,11 @@ let test_no_input _ =
   assert_equal 0 points ~msg:"No input should terminate the game"
 
 let test_one_incorrect_answer _ =
-  (* Simulate the first sequence and provide one incorrect answer *)
   let input = "2\n" in
-  (* "2" corresponds to an incorrect answer *)
   let points = with_mock_input input play_sequence_game in
   assert_equal 0 points ~msg:"One incorrect answer should terminate the game"
 
 let test_all_correct_answers _ =
-  (* Helper function to generate inputs based on correct answers *)
   let generate_inputs sequences =
     List.map
       (fun (_, correct_answer, answers) ->
@@ -669,17 +662,12 @@ let test_all_correct_answers _ =
       sequences
   in
 
-  (* Generate inputs for all correct answers *)
   let inputs = generate_inputs sequences in
 
-  (* Join the inputs into a single string with newlines to simulate user
-     input *)
   let input = String.concat "\n" inputs ^ "\n" in
 
-  (* Simulate the game with mock input *)
   let points = with_mock_input input play_sequence_game in
 
-  (* Assert that the total points equal the number of sequences *)
   assert_equal (List.length sequences) points
     ~msg:"All correct answers should yield maximum points"
 
