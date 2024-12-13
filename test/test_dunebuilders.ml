@@ -491,6 +491,71 @@ let test_scenario_termination _ =
   let final_score = play_traffic_cop () in
   assert_bool "Game should end with a non-negative score" (final_score >= 0)
 
+let test_play_game_all_correct _ =
+  (* Simulate correct answers for all rounds *)
+  let input = "arrest\njustice\ninvestigation\n" in
+  let old_stdin = Unix.dup Unix.stdin in
+  let pipe_read, pipe_write = Unix.pipe () in
+  Unix.write_substring pipe_write input 0 (String.length input) |> ignore;
+  Unix.close pipe_write;
+  Unix.dup2 pipe_read Unix.stdin;
+
+  let score =
+    try play_game ()
+    with exn ->
+      Unix.dup2 old_stdin Unix.stdin;
+      raise exn
+  in
+
+  Unix.dup2 old_stdin Unix.stdin;
+  Unix.close old_stdin;
+
+  assert_equal 3 score
+    ~msg:"Game should end with 3 points for all correct answers"
+
+let test_play_game_mixed_answers _ =
+  (* Simulate correct and incorrect answers *)
+  let input = "arrest\nwrong_answer\ninvestigation\n" in
+  let old_stdin = Unix.dup Unix.stdin in
+  let pipe_read, pipe_write = Unix.pipe () in
+  Unix.write_substring pipe_write input 0 (String.length input) |> ignore;
+  Unix.close pipe_write;
+  Unix.dup2 pipe_read Unix.stdin;
+
+  let score =
+    try play_game ()
+    with exn ->
+      Unix.dup2 old_stdin Unix.stdin;
+      raise exn
+  in
+
+  Unix.dup2 old_stdin Unix.stdin;
+  Unix.close old_stdin;
+
+  assert_equal 2 score
+    ~msg:"Game should end with 2 points for one incorrect answer"
+
+let test_play_game_no_input _ =
+  (* Simulate EOF (no answers provided) *)
+  let input = "" in
+  let old_stdin = Unix.dup Unix.stdin in
+  let pipe_read, pipe_write = Unix.pipe () in
+  Unix.write_substring pipe_write input 0 (String.length input) |> ignore;
+  Unix.close pipe_write;
+  Unix.dup2 pipe_read Unix.stdin;
+
+  let score =
+    try play_game ()
+    with exn ->
+      Unix.dup2 old_stdin Unix.stdin;
+      raise exn
+  in
+
+  Unix.dup2 old_stdin Unix.stdin;
+  Unix.close old_stdin;
+
+  assert_equal 0 score ~msg:"Game should end with 0 points for no input"
+
 let tests =
   "Test Suite"
   >::: [
@@ -527,10 +592,12 @@ let tests =
          "test_get_sequence_data" >:: test_get_sequence_data;
          "test_game_invalid_input" >:: test_game_invalid_input;
          "test_game_choice_out_of_range" >:: test_game_choice_out_of_range;
+         "test_play_game_all_correct" >:: test_play_game_all_correct;
+         "test_play_game_mixed_answers" >:: test_play_game_mixed_answers;
+         "test_play_game_no_input" >:: test_play_game_no_input;
          (* "test_game_incorrect_answer" >:: test_game_incorrect_answer; *)
          (* "test_handle_scenario_with_sequence_game" >::
             test_handle_scenario_with_sequence_game; *)
-         "test_scenario_termination" >:: test_scenario_termination;
        ]
 
 let _ = run_test_tt_main tests
