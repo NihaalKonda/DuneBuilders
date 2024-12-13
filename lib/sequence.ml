@@ -36,22 +36,22 @@ let play_sequence_game () =
       | input -> (
           try
             let choice = int_of_string input in
-            let selected_answer = List.nth answers (choice - 1) in
-            if selected_answer = correct_answer then (
-              if round = List.length sequences then
-                printf "Correct! You have completed the game.\n"
-              else printf "Correct! Moving to next question...\n";
-              ask_question (round + 1) (points + 1))
-            else (
-              printf "Incorrect! The correct answer was: %d\n" correct_answer;
-              printf "Game over. You earned %d points.\n" points;
-              points)
-          with
-          | Failure _ ->
-              printf "Invalid input. Game over.\n";
-              points
-          | Invalid_argument _ ->
+            if choice < 1 || choice > List.length answers then (
               printf "Choice out of range. Game over.\n";
               points)
+            else
+              let selected_answer = List.nth answers (choice - 1) in
+              if selected_answer = correct_answer then (
+                if round = List.length sequences then
+                  printf "Correct! You have completed the game.\n"
+                else printf "Correct! Moving to next question...\n";
+                ask_question (round + 1) (points + 1))
+              else (
+                printf "Incorrect! The correct answer was: %d\n" correct_answer;
+                printf "Game over. You earned %d points.\n" points;
+                points)
+          with Failure _ ->
+            printf "Invalid input. Game over.\n";
+            points)
   in
   ask_question 1 0

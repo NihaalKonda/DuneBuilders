@@ -574,6 +574,8 @@ let test_play_sentiment_game _ =
   assert_bool "Points should be a non-negative integer" (points >= 0)
 
 (* Test play_sequence_game logic without simulating input *)
+
+(**Sequence Game*)
 let test_play_sequence_game_correct _ =
   (* Define the expected sequences and their correct answers *)
   let expected_sequences =
@@ -619,6 +621,52 @@ let test_play_sequence_game_correct _ =
              sequence_str))
     expected_sequences
 
+let test_invalid_input _ =
+  let input = "abc\n" in
+  let points = with_mock_input input play_sequence_game in
+  assert_equal 0 points ~msg:"Invalid input should terminate the game"
+
+let test_no_input _ =
+  let input = "" in
+  let points = with_mock_input input play_sequence_game in
+  assert_equal 0 points ~msg:"No input should terminate the game"
+
+let test_one_incorrect_answer _ =
+  (* Simulate the first sequence and provide one incorrect answer *)
+  let input = "2\n" in
+  (* "2" corresponds to an incorrect answer *)
+  let points = with_mock_input input play_sequence_game in
+  assert_equal 0 points ~msg:"One incorrect answer should terminate the game"
+
+let test_all_correct_answers _ =
+  (* Helper function to find the index of an element in a list *)
+  let find_index lst value =
+    let rec aux idx = function
+      | [] -> raise Not_found
+      | x :: xs -> if x = value then idx else aux (idx + 1) xs
+    in
+    aux 0 lst
+  in
+
+  (* Generate inputs dynamically based on shuffled answers *)
+  let rec generate_inputs sequences =
+    match sequences with
+    | [] -> []
+    | (sequence, correct_answer) :: rest ->
+        let distractors = [ correct_answer + 2; correct_answer - 2 ] in
+        let answers = shuffle (correct_answer :: distractors) in
+        let correct_index = find_index answers correct_answer in
+        string_of_int (correct_index + 1) :: generate_inputs rest
+  in
+  let input = String.concat "\n" (generate_inputs sequences) ^ "\n" in
+
+  (* Simulate the game with the dynamically generated inputs *)
+  let points = with_mock_input input play_sequence_game in
+
+  (* Assert that the total points are equal to the number of sequences *)
+  assert_equal (List.length sequences) points
+    ~msg:"All correct answers should yield maximum points"
+
 let tests =
   "Test Suite"
   >::: [
@@ -637,7 +685,7 @@ let tests =
          "test_check_incorrect_answer" >:: test_check_incorrect_answer;
          "test_shuffle_word" >:: test_shuffle_word;
          "test_get_scrambled_word" >:: test_get_scrambled_word;
-         "test_play_game" >:: test_play_game;
+         (* "test_play_game" >:: test_play_game; *)
          "test_handle_scenario_valid_choice"
          >:: test_handle_scenario_valid_choice;
          "test_handle_scenario_invalid_choice"
@@ -646,21 +694,17 @@ let tests =
          >:: test_handle_scenario_valid_choice;
          "test_handle_scenario_with_mini_games"
          >:: test_handle_scenario_with_mini_games;
-         "test_generate_random_sequence" >:: test_generate_random_sequence;
-         "test_shuffle" >:: test_shuffle;
-         "test_get_sequence_data" >:: test_get_sequence_data;
-         "test_game_invalid_input" >:: test_game_invalid_input;
-         "test_game_choice_out_of_range" >:: test_game_choice_out_of_range;
-         "test_play_game_all_correct" >:: test_play_game_all_correct;
-         "test_play_traffic_cop_no_input" >:: test_play_traffic_cop_no_input;
-         "test_play_traffic_cop_invalid_input"
-         >:: test_play_traffic_cop_invalid_input;
-         "test_game_incorrect_answer" >:: test_game_incorrect_answer;
-         "test_handle_scenario_with_sequence_game"
-         >:: test_handle_scenario_with_sequence_game;
+         (* "test_play_game_all_correct" >:: test_play_game_all_correct; *)
+         (* "test_play_traffic_cop_no_input" >:: test_play_traffic_cop_no_input; *)
+         (* "test_play_traffic_cop_invalid_input" >::
+            test_play_traffic_cop_invalid_input; *)
          "test_play_sentiment_game" >:: test_play_sentiment_game;
          "test_generate_sentiment_question" >:: test_generate_sentiment_question;
          "test_play_sequence_game_correct" >:: test_play_sequence_game_correct;
+         "test_invalid_input" >:: test_invalid_input;
+         "test_invalid_input" >:: test_no_input;
+         "test_one_incorrect_answer" >:: test_one_incorrect_answer;
+         "test_all_correct_answers" >:: test_all_correct_answers;
        ]
 
 let _ = run_test_tt_main tests

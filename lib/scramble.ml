@@ -8,7 +8,7 @@ let shuffle_word word =
   in
   String.concat "" (List.map (String.make 1) shuffled_chars)
 
-let words =
+let words =   
   [
     "arrest";
     "justice";
