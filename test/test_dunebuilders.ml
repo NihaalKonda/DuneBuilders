@@ -487,6 +487,10 @@ let test_handle_scenario_with_sequence_game _ =
   assert_equal 13 updated_points (* 10 from option + 3 from sequence game *)
     ~msg:"Points should update correctly with sequence game"
 
+let test_scenario_termination _ =
+  let final_score = play_traffic_cop () in
+  assert_bool "Game should end with a non-negative score" (final_score >= 0)
+
 let tests =
   "Test Suite"
   >::: [
@@ -526,6 +530,7 @@ let tests =
          (* "test_game_incorrect_answer" >:: test_game_incorrect_answer; *)
          (* "test_handle_scenario_with_sequence_game" >::
             test_handle_scenario_with_sequence_game; *)
+         "test_scenario_termination" >:: test_scenario_termination;
        ]
 
 let _ = run_test_tt_main tests
