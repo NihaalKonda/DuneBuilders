@@ -320,6 +320,96 @@ let test_play_scenarios _ =
   assert_equal 15 final_score
     ~msg:"Final score should be the sum of all scenario points"
 
+(* SEQUENCE GAME TESTS *)
+let test_shuffle _ =
+  let lst = [ 1; 2; 3; 4; 5 ] in
+  let shuffled = shuffle lst in
+  assert_equal (List.sort compare lst) (List.sort compare shuffled)
+
+let test_generate_random_sequence _ =
+  let seq = generate_random_sequence 5 in
+  assert_equal 5 (List.length seq);
+  if List.length seq > 1 then
+    let steps =
+      let rec calculate_steps acc = function
+        | [] | [ _ ] -> List.rev acc
+        | a :: b :: tail -> calculate_steps ((b - a) :: acc) (b :: tail)
+      in
+      calculate_steps [] seq
+    in
+    let first_step = List.hd steps in
+    assert_bool "Steps are consistent"
+      (List.for_all (fun step -> step = first_step) steps)
+  else assert_bool "Sequence should have more than one element" false
+
+let test_get_sequence_data _ =
+  let sequence_str, correct_answer, answers = get_sequence_data () in
+  assert_bool "Sequence ends with ', ?'"
+    (String.ends_with ~suffix:", ?" sequence_str);
+  assert_bool "Correct answer is in options" (List.mem correct_answer answers);
+  assert_equal 3 (List.length answers)
+
+let test_play_sequence_game correct_inputs =
+  let input = String.concat "\n" correct_inputs ^ "\n" in
+  let old_stdin = Unix.dup Unix.stdin in
+  let pipe_read, pipe_write = Unix.pipe () in
+  Unix.write_substring pipe_write input 0 (String.length input) |> ignore;
+  Unix.close pipe_write;
+  Unix.dup2 pipe_read Unix.stdin;
+
+  let result =
+    try play_sequence_game ()
+    with exn ->
+      Unix.dup2 old_stdin Unix.stdin;
+      raise exn
+  in
+
+  Unix.dup2 old_stdin Unix.stdin;
+  Unix.close old_stdin;
+  result
+
+let run_sequence_game_with_inputs inputs =
+  let input = String.concat "\n" inputs ^ "\n" in
+  let old_stdin = Unix.dup Unix.stdin in
+  let pipe_read, pipe_write = Unix.pipe () in
+  Unix.write_substring pipe_write input 0 (String.length input) |> ignore;
+  Unix.close pipe_write;
+  Unix.dup2 pipe_read Unix.stdin;
+
+  let result =
+    try play_sequence_game ()
+    with exn ->
+      Unix.dup2 old_stdin Unix.stdin;
+      raise exn
+  in
+
+  Unix.dup2 old_stdin Unix.stdin;
+  Unix.close old_stdin;
+  result
+
+let test_game_incorrect_answer _ =
+  Random.init 42;
+  let _, correct_answer, answers = get_sequence_data () in
+  let incorrect_choice =
+    List.mapi
+      (fun i ans -> if ans <> correct_answer then Some i else None)
+      answers
+    |> List.filter_map Fun.id |> List.hd
+  in
+  let inputs = [ string_of_int (incorrect_choice + 1) ] in
+  let points = run_sequence_game_with_inputs inputs in
+  assert_equal 0 points
+
+let test_game_invalid_input _ =
+  let correct_inputs = [ "a" ] in
+  let points = test_play_sequence_game correct_inputs in
+  assert_equal 0 points
+
+let test_game_choice_out_of_range _ =
+  let correct_inputs = [ "4" ] in
+  let points = test_play_sequence_game correct_inputs in
+  assert_equal 0 points
+
 let tests =
   "Test Suite"
   >::: [
@@ -333,15 +423,16 @@ let tests =
          "test_scenario_count" >:: test_scenario_count;
          "test_scenario_options_count" >:: test_scenario_options_count;
          "test_play_scenario" >:: test_play_scenario;
-         (* "test_scenarios_count" >:: test_scenarios_count;
-            "test_scenario_structure" >:: test_scenario_structure;
-            "test_generate_question" >:: test_generate_question;
-            "test_check_correct_answer" >:: test_check_correct_answer;
-            "test_check_incorrect_answer" >:: test_check_incorrect_answer;
-            "test_play_quiz" >:: test_play_quiz; "test_random_reproducibility"
-            >:: test_random_reproducibility; *)
+         "test_scenarios_count" >:: test_scenarios_count;
+         "test_scenario_structure" >:: test_scenario_structure;
+         "test_generate_question" >:: test_generate_question;
+         "test_check_correct_answer" >:: test_check_correct_answer;
+         "test_check_incorrect_answer" >:: test_check_incorrect_answer;
+         "test_play_quiz" >:: test_play_quiz;
+         "test_random_reproducibility" >:: test_random_reproducibility;
          "test_shuffle_word" >:: test_shuffle_word;
          "test_get_scrambled_word" >:: test_get_scrambled_word;
+
          (* "test_play_game" >:: test_play_game; *)
          "test_handle_scenario_valid_choice"
          >:: test_handle_scenario_valid_choice;
@@ -351,6 +442,14 @@ let tests =
          >:: test_handle_scenario_valid_choice;
          "test_handle_scenario_with_mini_games"
          >:: test_handle_scenario_with_mini_games;
+         "test_play_game" >:: test_play_game;
+         "test_generate_random_sequence" >:: test_generate_random_sequence;
+         "test_shuffle" >:: test_shuffle;
+         "test_get_sequence_data" >:: test_get_sequence_data;
+         "test_game_invalid_input" >:: test_game_invalid_input;
+         "test_game_choice_out_of_range" >:: test_game_choice_out_of_range;
+         "test_game_incorrect_answer" >:: test_game_incorrect_answer;
+
        ]
 
 let _ = run_test_tt_main tests

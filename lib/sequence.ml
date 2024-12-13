@@ -29,7 +29,7 @@ let play_sequence_game () =
   let rec ask_question round points =
     if round > 3 then (
       printf "Congratulations! You got all points: %d\n" points;
-      points (* Return the total points *))
+      points)
     else
       let sequence_str, correct_answer, answers = get_sequence_data () in
       printf "\nComplete the sequence: %s\n" sequence_str;
@@ -39,7 +39,7 @@ let play_sequence_game () =
       match read_line () with
       | exception End_of_file ->
           printf "No input received. Exiting game.\n";
-          points (* Return the current points *)
+          points
       | input -> (
           try
             let choice = int_of_string input in
@@ -51,13 +51,13 @@ let play_sequence_game () =
             else (
               printf "Incorrect! The correct answer was: %d\n" correct_answer;
               printf "Game over. You earned %d points.\n" points;
-              points (* Return the current points *))
+              points)
           with
           | Failure _ ->
               printf "Invalid input. Game over.\n";
-              points (* Return the current points *)
+              points
           | Invalid_argument _ ->
               printf "Choice out of range. Game over.\n";
-              points (* Return the current points *))
+              points)
   in
   ask_question 1 0
