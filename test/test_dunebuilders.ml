@@ -120,6 +120,22 @@ let test_random_reproducibility _ =
   assert_bool "Different seeds should give different results"
     (question3 <> question1 || answer3 <> answer1)
 
+let test_scenario_count _ =
+  assert_equal 6 (List.length scenarios) ~msg:"Incorrect number of scenarios"
+
+let test_scenario_options_count _ =
+  List.iteri
+    (fun idx scenario ->
+      assert_equal 3
+        (List.length (get_scenario_options scenario))
+        ~msg:(sprintf "Scenario %d has incorrect number of options" (idx + 1)))
+    scenarios
+
+let test_play_scenario _ =
+  let scenario = List.nth scenarios 0 in
+  let score = play_scenarios [ scenario ] 1 in
+  assert_equal 1 score ~msg:"Scenario did not return the correct score"
+
 let tests =
   "Test Suite"
   >::: [
@@ -130,6 +146,9 @@ let tests =
          "test_check_incorrect_answer" >:: test_check_incorrect_answer;
          "test_play_quiz" >:: test_play_quiz;
          "test_random_reproducibility" >:: test_random_reproducibility;
+         "test_scenario_count" >:: test_scenario_count;
+         "test_scenario_options_count" >:: test_scenario_options_count;
+         "test_play_scenario" >:: test_play_scenario;
        ]
 
 let _ = run_test_tt_main tests
