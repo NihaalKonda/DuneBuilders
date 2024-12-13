@@ -135,6 +135,44 @@ let test_play_scenario _ =
   let scenario = List.nth scenarios 0 in
   let score = play_scenarios [ scenario ] 1 in
   assert_equal 1 score ~msg:"Scenario did not return the correct score"
+let test_shuffle_word _ =
+  let word = "investigation" in
+  let shuffled = shuffle_word word in
+  assert_equal (String.length word) (String.length shuffled);
+  assert_equal
+    (List.sort Char.compare (List.init (String.length word) (String.get word)))
+    (List.sort Char.compare
+       (List.init (String.length shuffled) (String.get shuffled)))
+
+let test_get_scrambled_word _ =
+  let used_words = [ "arrest"; "justice" ] in
+  let scrambled, word = get_scrambled_word used_words in
+  assert_bool "Word should not be in used words"
+    (not (List.mem word used_words));
+  assert_equal
+    (List.sort Char.compare (List.init (String.length word) (String.get word)))
+    (List.sort Char.compare
+       (List.init (String.length scrambled) (String.get scrambled)))
+
+let test_play_game _ =
+  let input = "arrest\n" ^ "wrong_answer\n" ^ "patrol\n" in
+  let old_stdin = Unix.dup Unix.stdin in
+  let pipe_read, pipe_write = Unix.pipe () in
+  Unix.write_substring pipe_write input 0 (String.length input) |> ignore;
+  Unix.close pipe_write;
+  Unix.dup2 pipe_read Unix.stdin;
+
+  let points =
+    try play_game ()
+    with exn ->
+      Unix.dup2 old_stdin Unix.stdin;
+      raise exn
+  in
+
+  Unix.dup2 old_stdin Unix.stdin;
+  Unix.close old_stdin;
+
+  assert_equal points 2
 
 let tests =
   "Test Suite"
@@ -149,6 +187,17 @@ let tests =
          "test_scenario_count" >:: test_scenario_count;
          "test_scenario_options_count" >:: test_scenario_options_count;
          "test_play_scenario" >:: test_play_scenario;
+         (* "test_scenarios_count" >:: test_scenarios_count;
+            "test_scenario_structure" >:: test_scenario_structure;
+            "test_generate_question" >:: test_generate_question;
+            "test_check_correct_answer" >:: test_check_correct_answer;
+            "test_check_incorrect_answer" >:: test_check_incorrect_answer;
+            "test_play_quiz" >:: test_play_quiz; "test_random_reproducibility"
+            >:: test_random_reproducibility; *)
+         "test_shuffle_word" >:: test_shuffle_word;
+         "test_get_scrambled_word" >:: test_get_scrambled_word;
+         "test_play_game" >:: test_play_game;
+
        ]
 
 let _ = run_test_tt_main tests

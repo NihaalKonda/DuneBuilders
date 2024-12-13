@@ -38,7 +38,7 @@ let play_game () =
   let rec aux remaining_rounds points used_words =
     if remaining_rounds = 0 then (
       printf "\nGame over! You scored %d points.\n" points;
-      points (* Return the total points *))
+      points)
     else
       let scrambled, correct_word = get_scrambled_word used_words in
       printf "\nUnscramble the word: %s\n" scrambled;
@@ -46,7 +46,7 @@ let play_game () =
       match read_line () with
       | exception End_of_file ->
           printf "No input received. Exiting game.\n";
-          points (* Return the current points *)
+          points
       | input ->
           if String.lowercase_ascii input = correct_word then (
             printf "Correct!\n";
@@ -55,5 +55,4 @@ let play_game () =
             printf "Incorrect! The correct word was: %s\n" correct_word;
             aux (remaining_rounds - 1) points (correct_word :: used_words))
   in
-  aux 3 0
-    [] (* Start with 3 rounds, 0 points, and an empty list of used words *)
+  aux 3 0 []
