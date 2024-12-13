@@ -144,7 +144,7 @@ let test_play_quiz _ =
 
 (* SCENARIO TESTS *)
 let test_scenario_count _ =
-  assert_equal 6 (List.length scenarios) ~msg:"Incorrect number of scenarios"
+  assert_equal 8 (List.length scenarios) ~msg:"Incorrect number of scenarios"
 
 let test_scenario_options_count _ =
   List.iteri
