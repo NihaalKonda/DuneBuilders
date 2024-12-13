@@ -76,6 +76,28 @@ let scenarios =
       ]
       false true false false;
     create_scenario
+      "You encounter a group of migrants attempting to cross the border \
+       illegally. What is your initial course of action?"
+      [
+        ( "Immediately apprehend all individuals and initiate deportation \
+           proceedings.",
+          -1,
+          "This approach lacks consideration for humanitarian concerns and may \
+           not be the most effective long-term solution." );
+        ( "Assess the situation, prioritize the safety and well-being of the \
+           migrants, and determine their eligibility for asylum or other forms \
+           of humanitarian relief.",
+          2,
+          "This approach emphasizes a humane and compassionate response while \
+           upholding the law." );
+        ( "Use force to deter the group and prevent them from crossing the \
+           border.",
+          -1,
+          "The use of excessive force can have serious consequences and may \
+           violate human rights." );
+      ]
+      false false false false;
+    create_scenario
       "A car is parked illegally in a restricted area near the border.\n\
        While investigating, you discover a hidden document that appears \
        scrambled. Solving this puzzle may reveal crucial information."
@@ -93,6 +115,24 @@ let scenarios =
           "Cautious but slower, you might still learn something useful." );
       ]
       false false true false;
+    create_scenario
+      "You intercept a vehicle suspected of human trafficking. What are your \
+       immediate priorities?"
+      [
+        ( "Secure the scene and ensure the safety of any potential victims.",
+          2,
+          "Prioritizing the safety and well-being of potential victims is \
+           paramount in a human trafficking situation." );
+        ( "Immediately apprehend the driver and seize the vehicle.",
+          1,
+          "While apprehending the driver is important, ensuring the safety of \
+           potential victims should be the primary focus." );
+        ( "Question the driver about their travel plans and cargo.",
+          -1,
+          "This approach may alert the traffickers and endanger the lives of \
+           potential victims." );
+      ]
+      false false false false;
     create_scenario
       "You're reviewing suspicious financial records tied to a smuggling ring.\n\
        To access the encrypted files, you must solve a series of math problems \

@@ -36,6 +36,21 @@ let scenarios =
       ]
       true false false false;
     create_scenario
+      "A driver runs a red light in a school zone. What do you do?"
+      [
+        ( "Make the driver pull over.",
+          2,
+          "This is the safest and most responsible action." );
+        ( "Engage in a high speed car chase through the school grounds.",
+          -1,
+          "This could cause children to get hurt and is not the safe course of \
+           action." );
+        ( "Call for additional backup",
+          1,
+          "This ensures safety but delays action." );
+      ]
+      false false false false;
+    create_scenario
       "While monitoring traffic, you stop a vehicle with mismatched plates. \
        Running the plates triggers a system alert requiring you to solve a \
        pattern sequence to unlock detailed vehicle information."
@@ -84,6 +99,21 @@ let scenarios =
           "This ensures you address the clue but slows the response." );
       ]
       false false true false;
+    create_scenario
+      "A car is going 25 over the speed limit on a highway. Everyone around \
+       them is gonig at least 10 mph slower."
+      [
+        ( "Try to pull over the driver by flashing your lights.",
+          2,
+          "This is the safest and most responsible action." );
+        ( "Ignore the car because they haven't hurt anyone yet.",
+          -1,
+          "This is neglectful and could cause a major accident." );
+        ( "Request additional backup before proceeding",
+          1,
+          "This ensures safety but delays action." );
+      ]
+      false false false false;
     create_scenario
       "While directing traffic at a busy intersection, the light sequence \
        malfunctions. Solving a pattern sequence can restore order to the flow \
