@@ -1,14 +1,5 @@
-open Random
-
-let generate_question () =
-  let num1 = 1 + Random.int 50 in
-  let num2 = 1 + Random.int 50 in
-  let operator = Random.int 3 in
-  match operator with
-  | 0 -> (Printf.sprintf "%d + %d" num1 num2, num1 + num2)
-  | 1 -> (Printf.sprintf "%d - %d" num1 num2, num1 - num2)
-  | 2 -> (Printf.sprintf "%d * %d" num1 num2, num1 * num2)
-  | _ -> failwith "Unexpected operator"
+let questions =
+  [ ("5 + 3", 8); ("10 - 7", 3); ("4 * 6", 24); ("9 + 2", 11); ("8 - 3", 5) ]
 
 let rec ask_question question answer =
   Printf.printf "Solve: %s = " question;
@@ -27,14 +18,13 @@ let rec ask_question question answer =
     ask_question question answer
 
 let play_quiz () =
-  Random.self_init ();
-  let rec play questions_left points =
-    if questions_left = 0 then (
-      Printf.printf "\nQuiz over! You scored %d points.\n" points;
-      points)
-    else
-      let question, answer = generate_question () in
-      let points_earned = ask_question question answer in
-      play (questions_left - 1) (points + points_earned)
+  let rec play questions points =
+    match questions with
+    | [] ->
+        Printf.printf "\nQuiz over! You scored %d points.\n" points;
+        points
+    | (question, answer) :: rest ->
+        let points_earned = ask_question question answer in
+        play rest (points + points_earned)
   in
-  play 5 0
+  play questions 0
