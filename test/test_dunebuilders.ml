@@ -493,7 +493,6 @@ let test_handle_all_games _ =
   assert_equal 14 updated_points
     ~msg:"Points should correctly sum from all mini-games in a scenario"
 
-(* Test handling a scenario with no mini-games *)
 let test_handle_no_games _ =
   let points = 0 in
   let updated_points =
@@ -527,8 +526,6 @@ let test_play_sentiment_game _ =
   let input = "calm\nthreat\nurgent\nresolved\ncalm\n" in
   let points = with_mock_input input (fun () -> play_sentiment_game ()) in
   assert_bool "Points should be a non-negative integer" (points >= 0)
-
-(* Test play_sequence_game logic without simulating input *)
 
 (**Sequence Game*)
 let index_of lst value =

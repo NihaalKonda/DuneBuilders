@@ -1,9 +1,20 @@
 open Printf
 open Random
 
-(* Sentiment detector game *)
-let generate_sentiment_question () =
-  let sentences =
+let remaining_questions = ref []
+
+let shuffle_list lst =
+  let arr = Array.of_list lst in
+  for i = Array.length arr - 1 downto 1 do
+    let j = Random.int (i + 1) in
+    let temp = arr.(i) in
+    arr.(i) <- arr.(j);
+    arr.(j) <- temp
+  done;
+  Array.to_list arr
+
+let initialize_questions () =
+  let questions =
     [
       ("We need backup at the scene immediately.", "urgent");
       ("The situation is under control.", "calm");
@@ -12,8 +23,18 @@ let generate_sentiment_question () =
       ("The victim requires medical attention immediately.", "urgent");
     ]
   in
-  let index = Random.int (List.length sentences) in
-  List.nth sentences index
+  remaining_questions := shuffle_list questions
+
+let generate_sentiment_question () =
+  match !remaining_questions with
+  | [] ->
+      initialize_questions ();
+      let hd = List.hd !remaining_questions in
+      remaining_questions := List.tl !remaining_questions;
+      hd
+  | hd :: tl ->
+      remaining_questions := tl;
+      hd
 
 let rec ask_sentiment_question sentence correct_category =
   printf "\nHere's the sentence: \"%s\"\n" sentence;
@@ -34,6 +55,7 @@ let rec ask_sentiment_question sentence correct_category =
 
 let play_sentiment_game () =
   Random.self_init ();
+  initialize_questions ();
   let rec play questions_left points =
     if questions_left = 0 then (
       printf "\nGame over! You scored %d points.\n" points;
