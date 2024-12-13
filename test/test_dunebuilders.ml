@@ -576,50 +576,12 @@ let test_play_sentiment_game _ =
 (* Test play_sequence_game logic without simulating input *)
 
 (**Sequence Game*)
-let test_play_sequence_game_correct _ =
-  (* Define the expected sequences and their correct answers *)
-  let expected_sequences =
-    [
-      ([ 30; 28; 25; 21; 16 ], 10);
-      (* Sequence and correct answer *)
-      ([ 2; 4; 8; 16; 32 ], 64);
-      (* Sequence and correct answer *)
-      ([ 75; 15; 25; 5; 15 ], 3);
-      (* Sequence and correct answer *)
-    ]
+let index_of lst value =
+  let rec aux idx = function
+    | [] -> raise Not_found
+    | x :: xs -> if x = value then idx else aux (idx + 1) xs
   in
-
-  (* Iterate over the sequences and validate the behavior *)
-  List.iteri
-    (fun idx (sequence, correct_answer) ->
-      (* Get the displayed sequence and distractors *)
-      let displayed_sequence = List.rev (List.tl (List.rev sequence)) in
-      let sequence_str =
-        String.concat ", " (List.map string_of_int displayed_sequence) ^ ", ?"
-      in
-      let distractors = [ correct_answer + 2; correct_answer - 2 ] in
-      let answers = shuffle (correct_answer :: distractors) in
-
-      (* Ensure the correct answer is part of the answers *)
-      assert_bool
-        (Printf.sprintf "Correct answer %d not in options for sequence: %s"
-           correct_answer sequence_str)
-        (List.mem correct_answer answers);
-
-      (* Check if the sequence string is correctly generated *)
-      assert_equal
-        (String.concat ", " (List.map string_of_int displayed_sequence) ^ ", ?")
-        sequence_str
-        ~msg:
-          (Printf.sprintf "Sequence string mismatch for sequence: %s"
-             sequence_str);
-
-      (* Verify that at least three options are generated *)
-      assert_equal 3 (List.length answers)
-        ~msg:
-          (Printf.sprintf "Expected 3 answer choices for sequence: %s"
-             sequence_str))
-    expected_sequences
+  aux 0 lst
 
 let test_invalid_input _ =
   let input = "abc\n" in
@@ -639,31 +601,26 @@ let test_one_incorrect_answer _ =
   assert_equal 0 points ~msg:"One incorrect answer should terminate the game"
 
 let test_all_correct_answers _ =
-  (* Helper function to find the index of an element in a list *)
-  let find_index lst value =
-    let rec aux idx = function
-      | [] -> raise Not_found
-      | x :: xs -> if x = value then idx else aux (idx + 1) xs
-    in
-    aux 0 lst
+  (* Helper function to generate inputs based on correct answers *)
+  let generate_inputs sequences =
+    List.map
+      (fun (_, correct_answer, answers) ->
+        let correct_index = index_of answers correct_answer in
+        string_of_int (correct_index + 1))
+      sequences
   in
 
-  (* Generate inputs dynamically based on shuffled answers *)
-  let rec generate_inputs sequences =
-    match sequences with
-    | [] -> []
-    | (sequence, correct_answer) :: rest ->
-        let distractors = [ correct_answer + 2; correct_answer - 2 ] in
-        let answers = shuffle (correct_answer :: distractors) in
-        let correct_index = find_index answers correct_answer in
-        string_of_int (correct_index + 1) :: generate_inputs rest
-  in
-  let input = String.concat "\n" (generate_inputs sequences) ^ "\n" in
+  (* Generate inputs for all correct answers *)
+  let inputs = generate_inputs sequences in
 
-  (* Simulate the game with the dynamically generated inputs *)
+  (* Join the inputs into a single string with newlines to simulate user
+     input *)
+  let input = String.concat "\n" inputs ^ "\n" in
+
+  (* Simulate the game with mock input *)
   let points = with_mock_input input play_sequence_game in
 
-  (* Assert that the total points are equal to the number of sequences *)
+  (* Assert that the total points equal the number of sequences *)
   assert_equal (List.length sequences) points
     ~msg:"All correct answers should yield maximum points"
 
@@ -698,11 +655,13 @@ let tests =
          (* "test_play_traffic_cop_no_input" >:: test_play_traffic_cop_no_input; *)
          (* "test_play_traffic_cop_invalid_input" >::
             test_play_traffic_cop_invalid_input; *)
+
+         (*SENTIMENT GAME TESTS*)
          "test_play_sentiment_game" >:: test_play_sentiment_game;
          "test_generate_sentiment_question" >:: test_generate_sentiment_question;
-         "test_play_sequence_game_correct" >:: test_play_sequence_game_correct;
+         (*SEQUENCE GAME TESTS*)
          "test_invalid_input" >:: test_invalid_input;
-         "test_invalid_input" >:: test_no_input;
+         "test_no_input" >:: test_no_input;
          "test_one_incorrect_answer" >:: test_one_incorrect_answer;
          "test_all_correct_answers" >:: test_all_correct_answers;
        ]
